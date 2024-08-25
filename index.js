@@ -16,7 +16,6 @@ app.get('/', (req, res) => {
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = "mongodb+srv://furqank219:78619255@cluster0.ijlcu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
-// Wze8L5AmvX4cCwDY
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -43,12 +42,12 @@ async function run() {
             res.send(result);
         })
 
-        // // get all books from db
-        // app.get("/all-books", async (req, res) => {
-        //     const books = bookCollections.find();
-        //     const result = await books.toArray();
-        //     res.send(result)
-        // })
+        // get all books from db
+        app.get("/all-books", async (req, res) => {
+            const books = bookCollections.find();
+            const result = await books.toArray();
+            res.send(result)
+        })
 
         // get all books & find by a category from db
         app.get("/all-books", async (req, res) => {
