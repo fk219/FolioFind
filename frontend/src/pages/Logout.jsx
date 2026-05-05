@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import { useContext, useState } from 'react'
 import { Button, Modal } from 'flowbite-react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthProvider';
@@ -12,12 +12,7 @@ const Logout = () => {
 const {logOut} = useContext(AuthContext);
 
   const hangleSignOut = () => {
-    // console.log("sign out");
-    logOut().then(() => {
-        // Sign-out successful.
-      }).catch((error) => {
-        // An error happened.
-      })
+    logOut();
   }
   return (
     <div className='h-screen flex items-center justify-center'>

@@ -1,18 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
-// Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
 
-// Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
 
-// import './styles.css';
-
-// import required modules
 import { Pagination } from 'swiper/modules';
-
-import img1 from '../../assets/banner-books/book1.png';
-// react icons
 import {FaCartShopping} from "react-icons/fa6"
 import { Link } from 'react-router-dom';
 

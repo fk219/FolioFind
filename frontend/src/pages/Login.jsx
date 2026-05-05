@@ -1,28 +1,16 @@
-import React, { useContext, useState } from 'react'
+import { useContext, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthProvider';
-import googleLogo from '../assets/google-logo.svg'
-import fbLogo from '../assets/facebook-log.svg'
 
 export default function Login() {
 
     const [ErrorMessage, setErrorMessage] = useState('');
 
-    const { signUpWithGmail, login } = useContext(AuthContext);
-
-    console.log(signUpWithGmail)
+    const { login } = useContext(AuthContext);
     const location = useLocation();
     const navigate = useNavigate();
 
     const from = location.state?.from?.pathname || '/';
-
-    // login with google
-    const handleRegister = () => {
-        signUpWithGmail().then((result) => {
-            const user = result.user;
-            navigate(from, { replace: true });
-        }).catch((error) => console.log(error))
-    }
 
     // login with email password
     const handleLogin = (event) => {
@@ -30,14 +18,9 @@ export default function Login() {
         const form = event.target;
         const email = form.email.value;
         const password = form.password.value;
-        // console.log(email, password);
-        login(email, password).then((result) => {
-            // Signed in 
-            const user = result.user;
-            console.log(user);
+        login(email, password).then(() => {
             alert("Login successful!")
             navigate(from, { replace: true });
-            // ...
         })
             .catch((error) => {
                 const errorMessage = error.message;
@@ -67,7 +50,7 @@ export default function Login() {
                                 </div>
                                 <div>
                                     <p>{ErrorMessage ? <span className='text-blue-500 text-sm'>Email or Username is not valid!</span> : ''}</p>
-                                    <p className='text-base mt-1'>If you haven't an account. Please create here <Link to='/create-user' className='underline text-blue-600'>Sign Up</Link></p>
+                                    <p className='text-base mt-1'>If you don&apos;t have an account, please create one here <Link to='/create-user' className='underline text-blue-600'>Sign Up</Link></p>
 
                                 </div>
                                 <div className="relative">
@@ -77,13 +60,6 @@ export default function Login() {
                         </div>
                     </div>
 
-                    {/* social login */}
-                    <div>
-                        <hr />
-                        <div className="flex w-full items-center flex-col mt-5 gap-3">
-                            <button onClick={handleRegister} className='block'> <img src={googleLogo} alt="" className='w-12 h-12 inline-block' />Log in with Google</button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

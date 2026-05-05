@@ -1,4 +1,3 @@
-import React from 'react'
 import favBook from '../../assets/favoritebook.jpg'
 import { Link } from 'react-router-dom'
 

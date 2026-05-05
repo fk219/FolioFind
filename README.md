@@ -1,72 +1,101 @@
 # MERN Book Store
 
-This is a full-stack MERN (MongoDB, Express, React, Node.js) application for managing a book store. It includes features for viewing, adding, updating, and deleting books.
+Full-stack MERN (MongoDB, Express, React, Node.js) book inventory app with a public storefront and an admin dashboard for managing books.
+
+## Features
+
+- Browse books and view details
+- Admin dashboard for uploading, editing, and deleting books
+- Local authentication (email/password) with JWT sessions
+- Role-based access control (admin-only write operations)
+- Validation + consistent API errors
+- Automated tests (backend + frontend) and GitHub Actions CI
 
 ## Tech Stack
 
-*   **Frontend:**
-    *   React
-    *   React Router
-    *   Tailwind CSS
-    *   Vite
-    *   Firebase Authentication
-*   **Backend:**
-    *   Express
-    *   MongoDB
-    *   Node.js
+- Frontend: React, React Router, Vite, Tailwind, Flowbite React, Vitest + React Testing Library
+- Backend: Node.js, Express, MongoDB, JWT, bcrypt, Zod, Jest + Supertest
 
 ## Getting Started
 
-To get a local copy up and running, follow these simple steps.
-
 ### Prerequisites
 
-*   Node.js and npm installed
-*   MongoDB Atlas account or local MongoDB installation
+- Node.js + npm
+- MongoDB (Atlas or local)
 
 ### Installation
 
-1.  **Clone the repo**
-    ```sh
-    git clone https://github.com/your_username/your_project.git
-    ```
-2.  **Install backend dependencies**
-    ```sh
-    cd backend
-    npm install
-    ```
-3.  **Install frontend dependencies**
-    ```sh
-    cd ../frontend
-    npm install
-    ```
+- Install backend deps
+
+```bash
+cd backend
+npm install
+```
+
+- Install frontend deps
+
+```bash
+cd ../frontend
+npm install
+```
 
 ### Usage
 
-1.  **Set up backend**
-    *   Create a `.env` file in the `backend` directory and add your MongoDB connection string:
-        ```
-        MONGO_URI=your_mongodb_connection_string
-        ```
-    *   Start the backend server:
-        ```sh
-        cd backend
-        npm start
-        ```
-2.  **Set up frontend**
-    *   Create a `.env` file in the `frontend` directory and add your Firebase configuration:
-        ```
-        VITE_FIREBASE_API_KEY=your_api_key
-        VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
-        VITE_FIREBASE_PROJECT_ID=your_project_id
-        VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
-        VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-        VITE_FIREBASE_APP_ID=your_app_id
-        ```
-    *   Start the frontend development server:
-        ```sh
-        cd frontend
-        npm run dev
-        ```
+- Backend env
 
-Now, you can view the application in your browser at `http://localhost:5173`.
+```bash
+cd backend
+cp .env.example .env
+```
+
+Edit `backend/.env` and set at least:
+
+- `MONGO_URI`
+- `JWT_SECRET`
+- `ADMIN_EMAIL`
+- `ADMIN_PASSWORD`
+
+- Start backend
+
+```bash
+cd backend
+npm run dev
+```
+
+- Frontend env
+
+```bash
+cd frontend
+cp .env.example .env
+```
+
+- Start frontend
+
+```bash
+cd frontend
+npm run dev
+```
+
+Open `http://localhost:5173`.
+
+## API Overview
+
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `GET /api/auth/me`
+- `GET /api/books`
+- `GET /api/books/:id`
+- `POST /api/books` (admin-only)
+- `PATCH /api/books/:id` (admin-only)
+- `DELETE /api/books/:id` (admin-only)
+
+## Scripts
+
+- Backend
+  - `npm run dev`
+  - `npm test`
+- Frontend
+  - `npm run dev`
+  - `npm run lint`
+  - `npm test`
+  - `npm run build`

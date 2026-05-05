@@ -1,11 +1,13 @@
-import React, { useState } from 'react'
-import { Button, Checkbox, Label, Select, TextInput, Textarea } from 'flowbite-react';
+import { useContext, useState } from 'react'
+import { Button, Label, Select, TextInput, Textarea } from 'flowbite-react';
 import { useLoaderData, useParams } from 'react-router-dom';
+import { AuthContext } from '../contexts/AuthProvider';
+import { updateBook } from '../api/books';
 
 const EditBooks = () => {
   const { id } = useParams();
   const { bookTitle, authorName, imageURL, category, bookDescription, bookPDFURL } = useLoaderData();
-  // console.log(bookTitle)
+  const { token } = useContext(AuthContext);
 
   const bookCategories = [
     "Fiction",
@@ -30,16 +32,15 @@ const EditBooks = () => {
   ];
 
   const [selectedBookCategory, setSelectedBookCategory] = useState(
-    bookCategories[0]
+    category || bookCategories[0]
   );
 
   const handleChangeSelectedValue = (event) => {
-    console.log(event.target.value);
     setSelectedBookCategory(event.target.value);
   };
 
 
-  const  handleUpdate = (event) => {
+  const  handleUpdate = async (event) => {
     event.preventDefault();
     const form = event.target;
 
@@ -58,22 +59,12 @@ const EditBooks = () => {
       bookDescription,
       bookPDFURL,
     };
-    // console.log(bookObj)
-
-    // update the book object
-    fetch(`https://bookstore-server-one.vercel.app/book/${id}`, {
-      method: "PATCH",
-
-      headers: {
-        "Content-type": "application/json",
-      },
-
-      body: JSON.stringify(bookObj),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-      });
+    try {
+      await updateBook({ token, id, patch: bookObj });
+      alert("Book updated successfully!");
+    } catch (e) {
+      alert("Update failed.");
+    }
   };
   
     return (
@@ -213,7 +204,7 @@ const EditBooks = () => {
 
           {/* Submit btn */}
           <Button type="submit" className='mt-5'>
-            Upload book
+            Update book
           </Button>
 
         </form>

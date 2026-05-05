@@ -1,15 +1,25 @@
 import { useContext, useEffect, useState } from 'react'
 import { Card, Spinner } from 'flowbite-react';
 import { AuthContext } from '../../contexts/AuthProvider';
+import { listBooks } from '../../api/books';
 
 export default function Shop() {
   const {loading } = useContext(AuthContext);
   const [books, setBooks] = useState([]);
 // fetching data
   useEffect(() =>{
-    fetch('https://bookstore-server-one.vercel.app/all-books')
-    .then(res => res.json())
-    .then(data => setBooks(data))
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await listBooks();
+        if (!cancelled) setBooks(data);
+      } catch (e) {
+        if (!cancelled) setBooks([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [loading]);
 
     // loader

@@ -1,64 +1,76 @@
-import React from 'react';
-import { createContext } from 'react';
-import {GoogleAuthProvider, createUserWithEmailAndPassword, getAuth, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut} from 'firebase/auth';
-import app from '../firebase/firebase.config';
-import { useState } from 'react';
-import { useEffect } from 'react';
+import { createContext, useCallback, useEffect, useState } from "react";
+import * as authApi from "../api/auth";
 
 export const AuthContext = createContext();
-const auth = getAuth(app);
-const googleProvider = new GoogleAuthProvider();
 
-const AuthProvider = ({children}) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+const TOKEN_KEY = "bookstore_token";
 
-    const createUser = (email, password) => {
+export default function AuthProvider({ children }) {
+  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || "");
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const refreshMe = useCallback(async (nextToken) => {
+    if (!nextToken) {
+      setUser(null);
+      return;
+    }
+    const res = await authApi.me({ token: nextToken });
+    setUser(res.user);
+  }, []);
+
+  async function login(email, password) {
+    setLoading(true);
+    const res = await authApi.login({ email, password });
+    localStorage.setItem(TOKEN_KEY, res.token);
+    setToken(res.token);
+    await refreshMe(res.token);
+    setLoading(false);
+    return res;
+  }
+
+  async function createUser(email, password) {
+    setLoading(true);
+    const res = await authApi.register({ email, password });
+    localStorage.setItem(TOKEN_KEY, res.token);
+    setToken(res.token);
+    await refreshMe(res.token);
+    setLoading(false);
+    return res;
+  }
+
+  function logOut() {
+    localStorage.removeItem(TOKEN_KEY);
+    setToken("");
+    setUser(null);
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
         setLoading(true);
-        return createUserWithEmailAndPassword(auth, email, password);
-    }
-
-    const signUpWithGmail = () => {
-        setLoading(true);
-        return signInWithPopup(auth, googleProvider);
-    }
-
-    const login = (email, password) =>{
-        setLoading(true);
-        return signInWithEmailAndPassword(auth, email, password);
-    }
-
-    const logOut = () =>{
-        localStorage.removeItem('genius-token');
-        return signOut(auth);
-    }
-
-    useEffect( () =>{
-        const unsubscribe = onAuthStateChanged(auth, currentUser =>{
-            console.log(currentUser);
-            setUser(currentUser);
-            setLoading(false);
-        });
-
-        return () =>{
-            return unsubscribe();
+        if (token) {
+          await refreshMe(token);
+        } else {
+          setUser(null);
         }
-    }, [])
+      } catch (e) {
+        localStorage.removeItem(TOKEN_KEY);
+        setToken("");
+        if (!cancelled) setUser(null);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [token, refreshMe]);
 
-    const authInfo = {
-        user, 
-        loading,
-        createUser, 
-        login, 
-        logOut,
-        signUpWithGmail
-    }
-
-    return (
-        <AuthContext.Provider value={authInfo}>
-            {children}
-        </AuthContext.Provider>
-    );
-};
-
-export default AuthProvider;
+  return (
+    <AuthContext.Provider value={{ user, loading, token, login, createUser, logOut }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}

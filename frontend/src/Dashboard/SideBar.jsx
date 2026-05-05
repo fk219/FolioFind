@@ -2,7 +2,6 @@
 import { Sidebar } from 'flowbite-react';
 import { HiArrowSmRight, HiChartPie, HiInbox, HiShoppingBag, HiSupport, HiTable, HiUser, HiViewBoards, HiOutlineCloudUpload } from 'react-icons/hi';
 import img from '../../src/assets/profile.jpg'
-import { Link } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from '../contexts/AuthProvider';
 import MobileDashboard from './MobileDashboard';
@@ -19,7 +18,7 @@ const SideBar = () => {
           imgAlt="Flowbite logo"
         >
           <p>
-            {user?.displayName || "Demo User" }
+            {user?.email || "Demo User" }
           </p>
         </Sidebar.Logo>
         <Sidebar.Items>

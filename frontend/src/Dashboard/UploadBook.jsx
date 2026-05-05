@@ -1,8 +1,11 @@
-import React, { useState } from 'react'
+import { useContext, useState } from 'react'
 
-import { Button, Checkbox, Label, Select, TextInput, Textarea } from 'flowbite-react';
+import { Button, Label, Select, TextInput, Textarea } from 'flowbite-react';
+import { AuthContext } from '../contexts/AuthProvider';
+import { createBook } from '../api/books';
 
 const UploadBook = () => {
+  const { token } = useContext(AuthContext);
   const bookCategories = [
     "Fiction",
     "Non-fiction",
@@ -35,7 +38,7 @@ const UploadBook = () => {
     setSelectedBookCategory(event.target.value);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const form = event.target;
 
@@ -54,22 +57,13 @@ const UploadBook = () => {
       bookDescription,
       bookPDFURL,
     };
-    // console.log(dataObj)
-    fetch("https://bookstore-server-one.vercel.app/upload-book", {
-      method: "POST",
-
-      headers: {
-        "Content-type": "application/json",
-      },
-
-      body: JSON.stringify(bookObj),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        // console.log(data);
-        alert("Book updated successfully!!!!");
-        form.reset();
-      });
+    try {
+      await createBook({ token, book: bookObj });
+      alert("Book uploaded successfully!");
+      form.reset();
+    } catch (e) {
+      alert("Upload failed.");
+    }
   };
 
 

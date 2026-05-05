@@ -1,5 +1,3 @@
-import React from 'react'
-
 import { Avatar, Dropdown, Navbar } from 'flowbite-react';
 import {FaBlog } from "react-icons/fa6";
 

@@ -1,29 +1,17 @@
-import React, { useContext, useState } from 'react'
+import { useContext, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthProvider';
-import googleLogo from '../assets/google-logo.svg'
-import fbLogo from '../assets/facebook-log.svg'
 
 
 const Signup = () => {
 
     const [ErrorMessage, setErrorMessage] = useState('');
 
-    const { signUpWithGmail, createUser } = useContext(AuthContext);
-
-    console.log(signUpWithGmail)
+    const { createUser } = useContext(AuthContext);
     const location = useLocation();
     const navigate = useNavigate();
 
     const from = location.state?.from?.pathname || '/';
-
-    // login with google
-    const handleRegister = () => {
-        signUpWithGmail().then((result) => {
-            const user = result.user;
-            navigate(from, { replace: true });
-        }).catch((error) => console.log(error))
-    }
 
     // login with email password
     const handleSignup = (event) => {
@@ -31,17 +19,13 @@ const Signup = () => {
         const form = event.target;
         const email = form.email.value;
         const password = form.password.value;
-        console.log(email, password);
-        createUser(email, password).then((userCredential) => {
-            // Signed in 
-            const user = userCredential.user;
-            // ...
+        createUser(email, password).then(() => {
+            alert("Account created successfully!")
+            navigate(from, { replace: true });
           })
           .catch((error) => {
-            const errorCode = error.code;
             const errorMessage = error.message;
-            console.log(error.message)
-            // ..
+            setErrorMessage(errorMessage)
           })
     }
 
@@ -67,6 +51,7 @@ const Signup = () => {
                                 </div>
                                 <div>
                                     <p className='text-base'>If you have an account. Please <Link to='/login' className='underline text-blue-600'>Login Now</Link> here</p>
+                                    <p>{ErrorMessage ? <span className='text-blue-500 text-sm'>Signup failed. Please try again.</span> : ''}</p>
                                 </div>
                                 <div className="relative">
                                     <button type='submit' className="bg-blue-500 text-white rounded px-6 py-1" >Sign up</button>
@@ -75,13 +60,6 @@ const Signup = () => {
                         </div>
                     </div>
 
-                    {/* social login */}
-                    <div>
-                        <hr />
-                        <div className="flex w-full items-center flex-col mt-5 gap-3">
-                            <button onClick={handleRegister} className='block'> <img src={googleLogo} alt="" className='w-12 h-12 inline-block' />Log in with Google</button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

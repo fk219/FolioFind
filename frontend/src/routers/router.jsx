@@ -3,7 +3,7 @@ import App from "../App";
 import { Home } from "../pages/Home/Home";
 import Shop from "../pages/Shop/Shop";
 import { DashboardLayout } from "../Dashboard/DashboardLayout";
-import PrivateRoute from "../PrivateRoute/PrivateRoute";
+import AdminRoute from "../PrivateRoute/AdminRoute";
 import Login from "../pages/Login";
 import SignleBook from "../pages/shared/SignleBook";
 import UploadBook from "../Dashboard/UploadBook";
@@ -15,6 +15,7 @@ import Logout from "../pages/Logout";
 import ErrorPage from "../pages/shared/ErrorPage";
 import About from "../pages/about/About";
 import Blog from "../pages/blog/Blog";
+import { getBook } from "../api/books";
 
 const router = createBrowserRouter([
   {
@@ -33,7 +34,7 @@ const router = createBrowserRouter([
       {
         path: "/book/:id",
         element: <SignleBook />,
-        loader: ({ params }) => fetch(`https://bookstore-server-one.vercel.app/book/${params.id}`)
+        loader: ({ params }) => getBook(params.id)
       },
       {
         path: "/about",
@@ -47,13 +48,13 @@ const router = createBrowserRouter([
   },
   {
     path: "/admin/dashboard",
-    element: <DashboardLayout />,
+    element: <AdminRoute><DashboardLayout /></AdminRoute>,
     children: [
-      { path: "/admin/dashboard", element: <PrivateRoute><Dashboard></Dashboard></PrivateRoute>},
+      { path: "/admin/dashboard", element: <Dashboard></Dashboard>},
       { path: "/admin/dashboard/upload", element: <UploadBook /> },
       { path: "/admin/dashboard/manage", element: <ManageBooks /> },
       { path: "/admin/dashboard/edit-books/:id", element: <EditBooks />,
-      loader: ({ params }) => fetch(`https://bookstore-server-one.vercel.app/book/${params.id}`)
+      loader: ({ params }) => getBook(params.id)
     },
     ],
   },

@@ -1,4 +1,3 @@
-import React from 'react'
 import bookPic from '../../assets/awardbooks.png'
 
 const PromoBanner = () => {

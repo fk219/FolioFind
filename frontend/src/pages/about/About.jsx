@@ -1,4 +1,3 @@
-import React from 'react'
 import { BsCloudArrowUp } from 'react-icons/bs';
 import { HiLockClosed, HiServer } from "react-icons/hi";
 

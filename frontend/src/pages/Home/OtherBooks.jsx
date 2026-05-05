@@ -1,11 +1,23 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import BookCards from '../shared/BookCards';
+import { listBooks } from '../../api/books';
 
 const OtherBooks = () => {
     const [books, setBooks] = useState([]);
 
     useEffect(() => {
-        fetch("https://bookstore-server-one.vercel.app/all-books").then(res => res.json()).then(data => setBooks(data.slice(5, 12)))
+        let cancelled = false;
+        (async () => {
+            try {
+                const data = await listBooks();
+                if (!cancelled) setBooks(data.slice(5, 12));
+            } catch (e) {
+                if (!cancelled) setBooks([]);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
     }, [])
 
     return (

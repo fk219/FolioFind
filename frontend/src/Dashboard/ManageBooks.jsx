@@ -1,36 +1,39 @@
 import { Table } from 'flowbite-react'
-import React, { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { Pagination } from 'flowbite-react';
 import { Link } from 'react-router-dom';
+import { AuthContext } from '../contexts/AuthProvider';
+import { deleteBook, listBooks } from '../api/books';
 
 const ManageBooks = () => {
     const [allBooks, setAllBooks] = useState([]);
+    const { token } = useContext(AuthContext);
     useEffect(() => {
-        fetch(`https://bookstore-server-one.vercel.app/all-books`)
-            .then((res) => res.json())
-            .then((data) => {
-                // console.log(data);
-                setAllBooks(data);
-            });
+        let cancelled = false;
+        (async () => {
+            try {
+                const data = await listBooks();
+                if (!cancelled) setAllBooks(data);
+            } catch (e) {
+                if (!cancelled) setAllBooks([]);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     // delete a books
-    const handleDelete = (id) => {
-        // console.log(id)
-        fetch(`https://bookstore-server-one.vercel.app/book/${id}`, {
-          method: "DELETE",
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            // console.log(data);
-            // setAllBooks(data);
-          });
+    const handleDelete = async (id) => {
+        const ok = confirm("Delete this book?");
+        if (!ok) return;
+        try {
+            await deleteBook({ token, id });
+            setAllBooks((prev) => prev.filter((b) => b._id !== id));
+        } catch (e) {
+            alert("Delete failed.");
+        }
       };
-
-
-    // pagination
-    const [currentPage, setCurrentPage] = useState(1);
-    const onPageChange = () => setCurrentPage(page);
 
     return (
         <div className='px-4 my-12'>
@@ -99,10 +102,10 @@ const ManageBooks = () => {
                     currentPage={1}
                     layout="pagination"
                     nextLabel="Go forward"
-                    onPageChange={page => { setCurrentPage(page) }}
+                    onPageChange={() => {}}
                     previousLabel="Go back"
                     showIcons
-                    totalPages={1000}
+                    totalPages={1}
                 />
             </div>
         </div>

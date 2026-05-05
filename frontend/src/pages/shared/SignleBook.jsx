@@ -1,4 +1,3 @@
-import React from 'react'
 import { useLoaderData } from 'react-router-dom'
 
 import { Banner } from 'flowbite-react';
@@ -8,7 +7,6 @@ import { MdAnnouncement } from 'react-icons/md';
 const SignleBook = () => {
     const data = useLoaderData();
     const { bookTitle } = data;
-    console.log(data)
     return (
         <div className='mt-20'>
             <Banner>
