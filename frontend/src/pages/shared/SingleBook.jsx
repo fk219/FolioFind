@@ -4,7 +4,7 @@ import { Banner } from 'flowbite-react';
 import { HiX } from 'react-icons/hi';
 import { MdAnnouncement } from 'react-icons/md';
 
-const SignleBook = () => {
+const SingleBook = () => {
     const data = useLoaderData();
     const { bookTitle } = data;
     return (
@@ -31,4 +31,4 @@ const SignleBook = () => {
     )
 }
 
-export default SignleBook
+export default SingleBook

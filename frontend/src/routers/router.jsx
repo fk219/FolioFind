@@ -5,7 +5,7 @@ import Shop from "../pages/Shop/Shop";
 import { DashboardLayout } from "../Dashboard/DashboardLayout";
 import AdminRoute from "../PrivateRoute/AdminRoute";
 import Login from "../pages/Login";
-import SignleBook from "../pages/shared/SignleBook";
+import SingleBook from "../pages/shared/SingleBook";
 import UploadBook from "../Dashboard/UploadBook";
 import Dashboard from "../Dashboard/Dashboard";
 import ManageBooks from "../Dashboard/ManageBooks";
@@ -33,7 +33,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/book/:id",
-        element: <SignleBook />,
+        element: <SingleBook />,
         loader: ({ params }) => getBook(params.id)
       },
       {

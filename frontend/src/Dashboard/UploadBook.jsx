@@ -34,7 +34,6 @@ const UploadBook = () => {
   );
 
   const handleChangeSelectedValue = (event) => {
-    console.log(event.target.value);
     setSelectedBookCategory(event.target.value);
   };
 
