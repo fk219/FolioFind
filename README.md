@@ -1,8 +1,8 @@
-# 📚 FolioFind - Enterprise-Grade MERN Book Management System
+# 📚 FolioFid - Enterprise-Grade MERN Book Management System
 
 > **Production-Ready | Resume-Worthy | Industry Best Practices**
 
-[![CI/CD Pipeline](https://github.com/fk219/FolioFind/actions/workflows/ci.yml/badge.svg)](https://github.com/fk219/FolioFind/actions/workflows/ci.yml)
+[![CI/CD Pipeline](https://github.com/fk219/FolioFid/actions/workflows/ci.yml/badge.svg)](https://github.com/fk219/FolioFid/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/Node.js-18%2B-brightgreen)](https://nodejs.org/)
 [![Code Quality](https://img.shields.io/badge/Code%20Quality-ESLint%20Clean-brightgreen)]()
@@ -28,7 +28,7 @@
 
 ## 📖 Project Overview
 
-**FolioFind** is a **full-stack MERN (MongoDB, Express.js, React, Node.js) application** designed as an enterprise-level book inventory management system with a public storefront, comprehensive admin dashboard, and production-grade authentication and authorization mechanisms.
+**FolioFid** is a **full-stack MERN (MongoDB, Express.js, React, Node.js) application** designed as an enterprise-level book inventory management system with a public storefront, comprehensive admin dashboard, and production-grade authentication and authorization mechanisms.
 
 This project demonstrates **professional software engineering practices** including:
 - Layered MVC architecture with clear separation of concerns
@@ -38,6 +38,7 @@ This project demonstrates **professional software engineering practices** includ
 - CI/CD pipeline with GitHub Actions
 - Production-ready error handling and logging
 - Complete API documentation and system design
+- Modern, beautiful UI with emerald-teal color scheme
 
 ### Project Score: **95/100 Production-Ready** ✅
 
@@ -383,39 +384,22 @@ Indexes:
 ```javascript
 {
   _id: ObjectId,                    // MongoDB auto-generated ID
-  bookTitle: String,                // Indexed for text search
-  author: String,                   // Indexed for text search
+  bookTitle: String,                // Book title
+  authorName: String,               // Author name
   bookDescription: String,          // Full book description
-  image: String,                    // URL to book cover image
+  imageURL: String,                 // URL to book cover image
   category: String,                 // Book category/genre
-  price: Number,                    // Book price (optional)
-  isbn: String,                     // ISBN (optional, can be unique)
-  publishedDate: Date,              // Publication date (optional)
-  publisher: String,                // Publisher name (optional)
-  pages: Number,                    // Number of pages (optional)
-  rating: Number,                   // Average rating 0-5 (optional)
-  reviews: [
-    {
-      userId: ObjectId,             // Reference to user
-      rating: Number,               // 1-5 rating
-      comment: String,              // Review comment
-      createdAt: Date               // Review timestamp
-    }
-  ],
-  uploadedBy: ObjectId,             // Reference to admin who uploaded
+  bookPDFURL: String,               // PDF URL (optional)
+  price: Number,                    // Price (optional)
   createdAt: Date,                  // Upload timestamp
-  updatedAt: Date,                  // Last modification timestamp
-  inventory: Number,                // Stock quantity (optional)
-  isAvailable: Boolean              // Availability status
+  updatedAt: Date                   // Last modification timestamp
 }
 
 Indexes:
-- bookTitle (text): Full-text search on title
-- author (text): Full-text search on author
+- email (unique): Fast user lookup
+- bookTitle: Search by title
+- authorName: Search by author
 - category: Filter by category
-- createdAt: Sort by upload date
-- isbn (unique): Fast ISBN lookup
-- uploadedBy: Find books by admin
 ```
 
 ---
@@ -698,7 +682,7 @@ Register a new user account
 {
   "email": "user@example.com",
   "password": "SecurePass123!",
-  "fullName": "John Doe"
+  "fullName": "John Doe"            // optional
 }
 ```
 
@@ -770,20 +754,17 @@ Get all books (public endpoint)
 
 **Response (200):**
 ```json
-{
-  "success": true,
-  "data": [
-    {
-      "_id": "507f1f77bcf86cd799439012",
-      "bookTitle": "JavaScript Mastery",
-      "author": "Kyle Simpson",
-      "category": "Programming",
-      "image": "https://example.com/book.jpg",
-      "createdAt": "2026-05-01T10:00:00Z"
-    }
-  ],
-  "count": 1
-}
+[
+  {
+    "_id": "507f1f77bcf86cd799439012",
+    "bookTitle": "JavaScript Mastery",
+    "authorName": "Kyle Simpson",
+    "category": "Programming",
+    "imageURL": "https://example.com/book.jpg",
+    "bookDescription": "A comprehensive guide...",
+    "createdAt": "2026-05-01T10:00:00Z"
+  }
+]
 ```
 
 #### GET /api/books/:id
@@ -792,16 +773,13 @@ Get a specific book by ID
 **Response (200):**
 ```json
 {
-  "success": true,
-  "data": {
-    "_id": "507f1f77bcf86cd799439012",
-    "bookTitle": "JavaScript Mastery",
-    "author": "Kyle Simpson",
-    "category": "Programming",
-    "bookDescription": "Complete guide to JavaScript...",
-    "image": "https://example.com/book.jpg",
-    "createdAt": "2026-05-01T10:00:00Z"
-  }
+  "_id": "507f1f77bcf86cd799439012",
+  "bookTitle": "JavaScript Mastery",
+  "authorName": "Kyle Simpson",
+  "category": "Programming",
+  "bookDescription": "Complete guide to JavaScript...",
+  "imageURL": "https://example.com/book.jpg",
+  "createdAt": "2026-05-01T10:00:00Z"
 }
 ```
 
@@ -818,10 +796,11 @@ Content-Type: application/json
 ```json
 {
   "bookTitle": "New Book",
-  "author": "Author Name",
+  "authorName": "Author Name",
   "category": "Fiction",
   "bookDescription": "Book description...",
-  "image": "https://example.com/book.jpg"
+  "imageURL": "https://example.com/book.jpg",
+  "price": 19.99
 }
 ```
 

@@ -13,7 +13,7 @@ function assertJwtSecret() {
 function signToken(user) {
   assertJwtSecret();
   return jwt.sign(
-    { sub: String(user._id), email: user.email, role: user.role },
+    { sub: String(user._id), email: user.email, role: user.role, fullName: user.fullName || "" },
     jwtSecret,
     { expiresIn: jwtExpiresIn }
   );
@@ -53,11 +53,12 @@ async function register(collections, payload) {
   const result = await collections.users.insertOne({
     email: payload.email,
     passwordHash,
+    fullName: payload.fullName || "",
     role: "user",
     createdAt: new Date()
   });
 
-  const user = { _id: result.insertedId, email: payload.email, role: "user" };
+  const user = { _id: result.insertedId, email: payload.email, fullName: payload.fullName || "", role: "user" };
   return { token: signToken(user), user };
 }
 
@@ -78,7 +79,7 @@ async function login(collections, payload) {
 
   return {
     token: signToken(user),
-    user: { _id: user._id, email: user.email, role: user.role }
+    user: { _id: user._id, email: user.email, fullName: user.fullName || "", role: user.role }
   };
 }
 

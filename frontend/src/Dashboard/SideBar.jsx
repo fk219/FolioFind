@@ -1,7 +1,6 @@
-
 import { Sidebar } from 'flowbite-react';
-import { HiArrowSmRight, HiChartPie, HiInbox, HiShoppingBag, HiSupport, HiTable, HiUser, HiViewBoards, HiOutlineCloudUpload } from 'react-icons/hi';
-import img from '../../src/assets/profile.jpg'
+import { HiArrowSmRight, HiChartPie, HiInbox, HiOutlineCloudUpload } from 'react-icons/hi';
+import img from '../assets/profile.jpg'
 import { useContext } from 'react';
 import { AuthContext } from '../contexts/AuthProvider';
 import MobileDashboard from './MobileDashboard';
@@ -10,100 +9,50 @@ const SideBar = () => {
   const {user} = useContext(AuthContext)
   return (
     <div className=''>
-      <Sidebar aria-label="Sidebar with content separator example" className='hidden md:block'>
+      <Sidebar aria-label="Admin sidebar" className='hidden md:block'>
         <Sidebar.Logo
           href="/"
           img={ img}
           className='w-10 h-10 rounded-full'
-          imgAlt="Flowbite logo"
+          imgAlt="Profile"
         >
-          <p>
-            {user?.email || "Demo User" }
+          <p className="truncate max-w-[140px]">
+            {user?.fullName || user?.email || "Admin"}
           </p>
         </Sidebar.Logo>
         <Sidebar.Items>
           <Sidebar.ItemGroup>
             <Sidebar.Item
               href="/admin/dashboard"
-              icon={HiChartPie}>
-              <p>
-                Dashboard
-              </p>
+              icon={HiChartPie}
+            >
+              Dashboard
             </Sidebar.Item>
             <Sidebar.Item
               href="/admin/dashboard/upload"
               icon={HiOutlineCloudUpload}
             >
-              <p>
-                Upload Book
-              </p>
+              Upload Book
             </Sidebar.Item>
-
             <Sidebar.Item
               href="/admin/dashboard/manage"
               icon={HiInbox}
             >
-              <p>
-                ManageBooks
-              </p>
+              Manage Books
             </Sidebar.Item>
             <Sidebar.Item
-              href="#"
-              icon={HiUser}
-            >
-              <p>
-                Users
-              </p>
-            </Sidebar.Item>
-            <Sidebar.Item
-              href="#"
-              icon={HiShoppingBag}
-            >
-              <p>
-                Products
-              </p>
-            </Sidebar.Item>
-            <Sidebar.Item
-              href="/login"
+              href="/shop"
               icon={HiArrowSmRight}
             >
-              <p>
-                Sign In
-              </p>
-            </Sidebar.Item>
-            <Sidebar.Item
-              href="/logout"
-              icon={HiTable}
-            >
-              <p>
-                Log out
-              </p>
+              View Shop
             </Sidebar.Item>
           </Sidebar.ItemGroup>
           <Sidebar.ItemGroup>
             <Sidebar.Item
-              href="#"
-              icon={HiChartPie}
+              href="/logout"
+              icon={HiArrowSmRight}
             >
-              <p>
-                Upgrade to Pro
-              </p>
-            </Sidebar.Item>
-            <Sidebar.Item
-              href="#"
-              icon={HiViewBoards}
-            >
-              <p>
-                Documentation
-              </p>
-            </Sidebar.Item>
-            <Sidebar.Item
-              href="#"
-              icon={HiSupport}
-            >
-              <p>
-                Help
-              </p>
+              Sign Out
             </Sidebar.Item>
           </Sidebar.ItemGroup>
         </Sidebar.Items>

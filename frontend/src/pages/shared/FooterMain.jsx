@@ -1,106 +1,79 @@
-
-import { Footer } from 'flowbite-react';
-import { BsFacebook, BsGithub, BsInstagram, BsTwitter } from 'react-icons/bs';
+import { Link } from 'react-router-dom'
+import { BsFacebook, BsGithub, BsInstagram, BsTwitter } from 'react-icons/bs'
+import { FaBook } from 'react-icons/fa6'
 
 const FooterMain = () => {
+  const year = new Date().getFullYear()
+
   return (
-    <Footer bgDark>
-      <div className="w-full px-4 lg:px-24">
-        <div className="grid w-full grid-cols-2 gap-8 px-6 py-8 md:grid-cols-4">
-          <div>
-            <Footer.Title title="Company" />
-            <Footer.LinkGroup col>
-              <Footer.Link href="#">
-                About
-              </Footer.Link>
-              <Footer.Link href="#">
-                Careers
-              </Footer.Link>
-              <Footer.Link href="#">
-                Brand Center
-              </Footer.Link>
-              <Footer.Link href="#">
-                Blog
-              </Footer.Link>
-            </Footer.LinkGroup>
+    <footer className="bg-[#0a0f0d] text-gray-300 pt-16 pb-8">
+      <div className="container-custom">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-y-12 gap-x-8 pb-12 border-b border-white/10">
+          {/* Brand */}
+          <div className="col-span-2 md:col-span-1">
+            <Link to="/" className="flex items-center gap-3 mb-4 group">
+              <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+                <FaBook className="text-white text-xl" />
+              </div>
+              <span className="text-2xl font-semibold text-white tracking-tight">FolioFid</span>
+            </Link>
+            <p className="text-sm text-gray-400 pr-6">Curated books for every reader.<br />Buy, sell &amp; discover with love.</p>
           </div>
+
+          {/* Links */}
           <div>
-            <Footer.Title title="help center" />
-            <Footer.LinkGroup col>
-              <Footer.Link href="#">
-                Discord Server
-              </Footer.Link>
-              <Footer.Link href="#">
-                Twitter
-              </Footer.Link>
-              <Footer.Link href="#">
-                Facebook
-              </Footer.Link>
-              <Footer.Link href="#">
-                Contact Us
-              </Footer.Link>
-            </Footer.LinkGroup>
+            <div className="text-white font-semibold mb-4 text-sm tracking-wide">Discover</div>
+            <div className="space-y-2.5 text-sm">
+              <Link to="/shop" className="block hover:text-white transition">Browse Books</Link>
+              <Link to="/blog" className="block hover:text-white transition">Stories &amp; Blog</Link>
+              <Link to="/about" className="block hover:text-white transition">About Us</Link>
+            </div>
           </div>
+
           <div>
-            <Footer.Title title="legal" />
-            <Footer.LinkGroup col>
-              <Footer.Link href="#">
-                Privacy Policy
-              </Footer.Link>
-              <Footer.Link href="#">
-                Licensing
-              </Footer.Link>
-              <Footer.Link href="#">
-                Terms & Conditions
-              </Footer.Link>
-            </Footer.LinkGroup>
+            <div className="text-white font-semibold mb-4 text-sm tracking-wide">Community</div>
+            <div className="space-y-2.5 text-sm">
+              <a href="#" className="block hover:text-white transition">Book Clubs</a>
+              <a href="#" className="block hover:text-white transition">Events</a>
+              <a href="#" className="block hover:text-white transition">Authors</a>
+            </div>
           </div>
+
           <div>
-            <Footer.Title title="download" />
-            <Footer.LinkGroup col>
-              <Footer.Link href="#">
-                iOS
-              </Footer.Link>
-              <Footer.Link href="#">
-                Android
-              </Footer.Link>
-              <Footer.Link href="#">
-                Windows
-              </Footer.Link>
-              <Footer.Link href="#">
-                MacOS
-              </Footer.Link>
-            </Footer.LinkGroup>
+            <div className="text-white font-semibold mb-4 text-sm tracking-wide">Support</div>
+            <div className="space-y-2.5 text-sm">
+              <a href="#" className="block hover:text-white transition">Help Center</a>
+              <a href="#" className="block hover:text-white transition">Contact</a>
+              <a href="#" className="block hover:text-white transition">Trust &amp; Safety</a>
+            </div>
+          </div>
+
+          <div>
+            <div className="text-white font-semibold mb-4 text-sm tracking-wide">Legal</div>
+            <div className="space-y-2.5 text-sm">
+              <a href="#" className="block hover:text-white transition">Privacy</a>
+              <a href="#" className="block hover:text-white transition">Terms</a>
+              <a href="#" className="block hover:text-white transition">Licensing</a>
+            </div>
           </div>
         </div>
-        <div className="w-full bg-gray-700 px-4 py-6 sm:flex sm:items-center sm:justify-between">
-          <Footer.Copyright
-            by="Fk Books"
-            href="#"
-            year={2024}
-          />
-          <div className="mt-4 flex space-x-6 sm:mt-0 sm:justify-center">
-            <Footer.Icon
-              href="#"
-              icon={BsFacebook}
-            />
-            <Footer.Icon
-              href="#"
-              icon={BsInstagram}
-            />
-            <Footer.Icon
-              href="#"
-              icon={BsTwitter}
-            />
-            <Footer.Icon
-              href="#"
-              icon={BsGithub}
-            />
+
+        {/* Bottom Bar */}
+        <div className="flex flex-col md:flex-row items-center justify-between pt-8 text-sm gap-4">
+          <div className="text-gray-400">
+            © {year} FolioFid. Crafted with care for book lovers everywhere.
+          </div>
+
+          <div className="flex items-center gap-6 text-gray-400">
+            <a href="#" className="hover:text-emerald-400 transition"><BsTwitter className="text-lg" /></a>
+            <a href="#" className="hover:text-emerald-400 transition"><BsInstagram className="text-lg" /></a>
+            <a href="#" className="hover:text-emerald-400 transition"><BsFacebook className="text-lg" /></a>
+            <a href="#" className="hover:text-emerald-400 transition"><BsGithub className="text-lg" /></a>
           </div>
         </div>
       </div>
-    </Footer>
+    </footer>
   )
 }
 
-export default FooterMain;
+export default FooterMain

@@ -1,7 +1,8 @@
 {
-  "name": "mern-book-client",
+  "name": "foliofid-client",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "FolioFid - Buy and Sell Books Online",
   "type": "module",
   "scripts": {
     "dev": "vite",

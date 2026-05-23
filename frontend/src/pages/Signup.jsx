@@ -1,65 +1,82 @@
 import { useContext, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../contexts/AuthProvider';
-
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { AuthContext } from '../contexts/AuthProvider'
+import { FaBook } from 'react-icons/fa6'
 
 const Signup = () => {
+    const [errorMessage, setErrorMessage] = useState('')
+    const [loading, setLoading] = useState(false)
 
-    const [ErrorMessage, setErrorMessage] = useState('');
+    const { createUser } = useContext(AuthContext)
+    const location = useLocation()
+    const navigate = useNavigate()
 
-    const { createUser } = useContext(AuthContext);
-    const location = useLocation();
-    const navigate = useNavigate();
+    const from = location.state?.from?.pathname || '/'
 
-    const from = location.state?.from?.pathname || '/';
-
-    // login with email password
-    const handleSignup = (event) => {
-        event.preventDefault();
-        const form = event.target;
-        const email = form.email.value;
-        const password = form.password.value;
-        createUser(email, password).then(() => {
-            alert("Account created successfully!")
-            navigate(from, { replace: true });
-          })
-          .catch((error) => {
-            const errorMessage = error.message;
-            setErrorMessage(errorMessage)
-          })
+    const handleSignup = async (event) => {
+        event.preventDefault()
+        setLoading(true)
+        setErrorMessage('')
+        const form = event.target
+        const email = form.email.value
+        const password = form.password.value
+        const fullName = form.fullName.value
+        try {
+            await createUser(email, password, fullName)
+            navigate(from, { replace: true })
+        } catch (error) {
+            setErrorMessage(error.message || 'Signup failed. Please try again.')
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
-
-        <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
-            <div className="relative py-3 sm:max-w-xl sm:mx-auto">
-                <div
-                    className="absolute inset-0 bg-gradient-to-r from-blue-300 to-blue-600 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl">
-                </div>
-                <div className="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
-                    <div className="max-w-md mx-auto">
-                        <div>
-                            <h1 className="text-3xl font-semibold">Please Create An Account</h1>
+        <div className="min-h-[100dvh] bg-[#f8f7f4] flex items-center justify-center py-12 px-4">
+            <div className="w-full max-w-[460px]">
+                <div className="text-center mb-8">
+                    <div className="inline-flex items-center gap-3 mb-4">
+                        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center">
+                            <FaBook className="text-white text-2xl" />
                         </div>
-                        <div className="divide-y divide-gray-200">
-                            <form onSubmit={handleSignup} className="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
-                                <div className="relative">
-                                    <input id="email" name="email" type="text" className="peer h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600" placeholder="Email address" required />
-                                </div>
-                                <div className="relative">
-                                    <input id="password" name="password" type="password" className="peer h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600" placeholder="Password" required />
-                                </div>
-                                <div>
-                                    <p className='text-base'>If you have an account. Please <Link to='/login' className='underline text-blue-600'>Login Now</Link> here</p>
-                                    <p>{ErrorMessage ? <span className='text-blue-500 text-sm'>Signup failed. Please try again.</span> : ''}</p>
-                                </div>
-                                <div className="relative">
-                                    <button type='submit' className="bg-blue-500 text-white rounded px-6 py-1" >Sign up</button>
-                                </div>
-                            </form>
-                        </div>
+                        <span className="font-semibold text-3xl tracking-[-1px]">FolioFid</span>
                     </div>
+                    <h1 className="text-4xl tracking-[-1.5px] font-semibold">Join the club</h1>
+                    <p className="mt-2 text-gray-600">Create your account and start discovering beautiful books</p>
+                </div>
 
+                <div className="card p-8 md:p-10">
+                    <form onSubmit={handleSignup} className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium mb-1.5 text-gray-700">Full name</label>
+                            <input id="fullName" name="fullName" type="text" className="input-field" placeholder="Alex Rivera" />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-1.5 text-gray-700">Email address</label>
+                            <input id="email" name="email" type="email" className="input-field" placeholder="you@reading.com" required />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-1.5 text-gray-700">Password</label>
+                            <input id="password" name="password" type="password" className="input-field" placeholder="At least 8 characters" required />
+                        </div>
+
+                        {errorMessage && (
+                            <div className="text-red-600 text-sm bg-red-50 border border-red-100 px-4 py-2.5 rounded-2xl">
+                                {errorMessage}
+                            </div>
+                        )}
+
+                        <button type="submit" disabled={loading} className="btn-primary w-full text-base py-4">
+                            {loading ? 'Creating your account...' : 'Create my account'}
+                        </button>
+
+                        <p className="text-center text-sm text-gray-600 pt-2">
+                            Already a member?{' '}
+                            <Link to="/login" className="font-semibold text-emerald-700 hover:underline">Sign in instead</Link>
+                        </p>
+                    </form>
                 </div>
             </div>
         </div>

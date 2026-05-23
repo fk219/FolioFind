@@ -5,25 +5,18 @@ This is the backend for the MERN Book Store application. It is built with Node.j
 
 ## API Endpoints
 
-The following table lists the available API endpoints.
+| Method | Endpoint         | Auth Required | Description                          |
+| ------ | ---------------- | ------------- | ------------------------------------ |
+| `POST` | `/api/auth/register` | No        | Register a new user account          |
+| `POST` | `/api/auth/login`    | No        | Login with email and password        |
+| `GET`  | `/api/auth/me`       | Yes       | Get current authenticated user       |
+| `GET`  | `/api/books`         | No        | Get all books (optional ?category=)  |
+| `GET`  | `/api/books/:id`     | No        | Get a single book by ID              |
+| `POST` | `/api/books`         | Admin     | Create a new book                    |
+| `PATCH`| `/api/books/:id`     | Admin     | Update a book                        |
+| `DELETE`| `/api/books/:id`    | Admin     | Delete a book                        |
 
-| Method | Endpoint         | Description                                   |
-| ------ | ---------------- | --------------------------------------------- |
-| `POST` | `/upload-book`   | Add a new book to the database.               |
-| `GET`  | `/all-books`     | Get all books, or filter by category.         |
-| `GET`  | `/book/:id`      | Get a single book by its ID.                  |
-| `PATCH`| `/book/:id`      | Update a book's data.                         |
-| `DELETE`| `/book/:id`    | Delete a book by its ID.                      |
-
-### Get All Books (with optional category filter)
-
-*   **URL:** `/all-books`
-*   **Method:** `GET`
-*   **Query Parameters:**
-    *   `category` (optional): Filter books by category.
-*   **Success Response:**
-    *   **Code:** 200
-    *   **Content:** An array of book objects.
+Books are stored with these fields: `bookTitle`, `authorName`, `imageURL`, `category`, `bookDescription`, `bookPDFURL`, `price`.
 
 ## Setup
 

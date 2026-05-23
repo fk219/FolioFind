@@ -9,8 +9,8 @@ const OtherBooks = () => {
         let cancelled = false;
         (async () => {
             try {
-                const data = await listBooks();
-                if (!cancelled) setBooks(data.slice(5, 12));
+                const { books } = await listBooks();
+                if (!cancelled) setBooks(books.slice(5, 12));
             } catch (e) {
                 if (!cancelled) setBooks([]);
             }

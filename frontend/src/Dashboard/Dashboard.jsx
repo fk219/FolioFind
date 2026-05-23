@@ -1,114 +1,145 @@
-import './dasboard.css'
+import { useContext, useEffect, useState } from 'react'
+import { AuthContext } from '../contexts/AuthProvider'
+import { listBooks } from '../api/books'
 
 const Dashboard = () => {
-  return (
-    <div className="max-w-7xl">
-    <div className="px-4">
-      <div className="w-full mx-auto">
-        <div className="bg-white rounded-3xl p-8 mb-5">
-          <h1 className="text-3xl font-bold mb-10">Demo Dashboard development for the book inventory</h1>
-          <div className="flex items-center justify-between">
-            <div className="flex items-stretch">
-              <div className="text-gray-400 text-xs">Members <br />connected</div>
-              <div className="h-100 border-l mx-4"></div>
-              <div className="flex flex-nowrap -space-x-3">
-                <div className="h-9 w-9">
+  const { user } = useContext(AuthContext)
+  const [stats, setStats] = useState(null)
+  const [recentBooks, setRecentBooks] = useState([])
+  const [loading, setLoading] = useState(true)
 
-                  <img className="object-cover w-full h-full rounded-full" src="https://ui-avatars.com/api/?background=random" />
-                </div>
-                <div className="h-9 w-9">
-                  <img className="object-cover w-full h-full rounded-full" src="https://ui-avatars.com/api/?background=random" />
-                </div>
-              </div>
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const data = await listBooks()
+        if (cancelled) return
+        const books = data?.books || []
+        const totalBooks = books.length
+        const categories = [...new Set(books.map(b => b.category).filter(Boolean))]
+        const categoryCounts = {}
+        for (const cat of categories) {
+          categoryCounts[cat] = books.filter(b => b.category === cat).length
+        }
+        const sorted = [...books].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+        setStats({ totalBooks, totalCategories: categories.length, categoryCounts })
+        setRecentBooks(sorted.slice(0, 5))
+        setLoading(false)
+      } catch {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="px-4 py-8 w-full">
+      <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
+      <p className="text-gray-500 mb-8">Welcome back, {user?.fullName || user?.email}</p>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div className="bg-white rounded-2xl shadow p-6 border border-gray-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-500 font-medium">Total Books</p>
+              <p className="text-4xl font-bold text-gray-800 mt-1">{stats?.totalBooks || 0}</p>
             </div>
-            <div className="flex items-center gap-x-2">
-              <button type="button" className="inline-flex items-center justify-center h-9 px-3 rounded-xl border hover:border-gray-400 text-gray-800 hover:text-gray-900 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" className="bi bi-chat-fill" viewBox="0 0 16 16">
-                  <path d="M8 15c4.418 0 8-3.134 8-7s-3.582-7-8-7-8 3.134-8 7c0 1.76.743 3.37 1.97 4.6-.097 1.016-.417 2.13-.771 2.966-.079.186.074.394.273.362 2.256-.37 3.597-.938 4.18-1.234A9.06 9.06 0 0 0 8 15z" />
-                </svg>
-              </button>
-              <button type="button" className="inline-flex items-center justify-center h-9 px-5 rounded-xl bg-gray-900 text-gray-300 hover:text-white text-sm font-semibold transition">
-                Open
-              </button>
+            <div className="bg-blue-100 p-3 rounded-xl">
+              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
             </div>
           </div>
+        </div>
 
-          <hr className="my-10" />
-
-          <div className="grid grid-cols-2 gap-x-20">
+        <div className="bg-white rounded-2xl shadow p-6 border border-gray-100">
+          <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold mb-4">Stats</h2>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
-                  <div className="p-4 bg-green-100 rounded-xl">
-                    <div className="font-bold text-xl text-gray-800 leading-none">Good day, <br/> Kristin</div>
-                    <div className="mt-5">
-                      <button type="button" className="inline-flex items-center justify-center py-2 px-3 rounded-xl bg-white text-gray-800 hover:text-green-500 text-sm font-semibold transition">
-                        Start tracking
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-4 bg-yellow-100 rounded-xl text-gray-800">
-                  <div className="font-bold text-2xl leading-none">20</div>
-                  <div className="mt-2">Tasks finished</div>
-                </div>
-                <div className="p-4 bg-yellow-100 rounded-xl text-gray-800">
-                  <div className="font-bold text-2xl leading-none">5,5</div>
-                  <div className="mt-2">Tracked hours</div>
-                </div>
-                <div className="col-span-2">
-                  <div className="p-4 bg-purple-100 rounded-xl text-gray-800">
-                    <div className="font-bold text-xl leading-none">Your daily plan</div>
-                    <div className="mt-2">5 of 8 completed</div>
-                  </div>
-                </div>
-              </div>
+              <p className="text-sm text-gray-500 font-medium">Categories</p>
+              <p className="text-4xl font-bold text-gray-800 mt-1">{stats?.totalCategories || 0}</p>
             </div>
+            <div className="bg-green-100 p-3 rounded-xl">
+              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow p-6 border border-gray-100">
+          <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold mb-4">Your tasks today</h2>
-
-              <div className="space-y-4">
-                <div className="p-4 bg-white border rounded-xl text-gray-800 space-y-2">
-                  <div className="flex justify-between">
-                    <div className="text-gray-400 text-xs">Number 10</div>
-                    <div className="text-gray-400 text-xs">4h</div>
-                  </div>
-                  <a href="javascript:void(0)" className="font-bold hover:text-yellow-800 hover:underline">Blog and social posts</a>
-                  <div className="text-sm text-gray-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" className="text-gray-800 inline align-middle mr-1" viewBox="0 0 16 16">
-                      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" />
-                    </svg>Deadline is today
-                  </div>
-                </div>
-                <div className="p-4 bg-white border rounded-xl text-gray-800 space-y-2">
-                  <div className="flex justify-between">
-                    <div className="text-gray-400 text-xs">Grace Aroma</div>
-                    <div className="text-gray-400 text-xs">7d</div>
-                  </div>
-                  <a href="javascript:void(0)" className="font-bold hover:text-yellow-800 hover:underline">New campaign review</a>
-                  <div className="text-sm text-gray-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" className="text-gray-800 inline align-middle mr-1" viewBox="0 0 16 16">
-                      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" />
-                    </svg>New feedback
-                  </div>
-                </div>
-                <div className="p-4 bg-white border rounded-xl text-gray-800 space-y-2">
-                  <div className="flex justify-between">
-                    <div className="text-gray-400 text-xs">Petz App</div>
-                    <div className="text-gray-400 text-xs">2h</div>
-                  </div>
-                  <a href="javascript:void(0)" className="font-bold hover:text-yellow-800 hover:underline">Cross-platform and browser QA</a>
-                </div>
-
-              </div>
+              <p className="text-sm text-gray-500 font-medium">Role</p>
+              <p className="text-4xl font-bold text-gray-800 mt-1 capitalize">{user?.role || "user"}</p>
+            </div>
+            <div className="bg-purple-100 p-3 rounded-xl">
+              <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
             </div>
           </div>
         </div>
       </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white rounded-2xl shadow p-6 border border-gray-100">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Books by Category</h2>
+          {stats?.categoryCounts && Object.keys(stats.categoryCounts).length > 0 ? (
+            <div className="space-y-3">
+              {Object.entries(stats.categoryCounts).map(([cat, count]) => (
+                <div key={cat} className="flex items-center justify-between">
+                  <span className="text-gray-700">{cat}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-32 bg-gray-100 rounded-full h-2">
+                      <div
+                        className="bg-blue-600 h-2 rounded-full"
+                        style={{ width: `${(count / stats.totalBooks) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-sm font-semibold text-gray-600 w-6 text-right">{count}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400">No books uploaded yet.</p>
+          )}
+        </div>
+
+        <div className="bg-white rounded-2xl shadow p-6 border border-gray-100">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Recent Books</h2>
+          {recentBooks.length > 0 ? (
+            <ul className="divide-y divide-gray-100">
+              {recentBooks.map(book => (
+                <li key={book._id} className="py-3 flex items-center gap-3">
+                  <img
+                    src={book.imageURL}
+                    alt={book.bookTitle}
+                    className="w-10 h-14 object-cover rounded"
+                    onError={(e) => { e.target.style.display = 'none' }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-800 truncate">{book.bookTitle}</p>
+                    <p className="text-sm text-gray-500 truncate">{book.authorName}</p>
+                  </div>
+                  <span className="text-xs text-gray-400">{book.category}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-400">No books uploaded yet.</p>
+          )}
+        </div>
+      </div>
     </div>
-  </div>
   )
 }
 

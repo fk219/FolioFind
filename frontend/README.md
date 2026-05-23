@@ -1,16 +1,16 @@
 # Frontend
 
-This is the frontend for the MERN Book Store application. It is built with React, Vite, and Tailwind CSS.
+This is the frontend for the FolioFid MERN Book Store application. Built with React, Vite, and Tailwind CSS.
 
 ## Features
 
-*   View a list of all books.
-*   Filter books by category.
-*   View the details of a single book.
-*   Add new books to the store.
-*   Update existing books.
-*   Delete books from the store.
-*   User authentication with Firebase.
+- Browse all books with category filtering
+- View detailed book information
+- User registration and JWT-based authentication
+- Admin dashboard with book CRUD (create, read, update, delete)
+- Protected routes for authenticated users
+- Admin-only routes for management
+- Responsive design with modern UI
 
 ## Setup
 
@@ -18,14 +18,9 @@ This is the frontend for the MERN Book Store application. It is built with React
     ```sh
     npm install
     ```
-2.  **Create a `.env` file** in the `frontend` directory and add your Firebase configuration:
+2.  **Create a `.env` file** in the `frontend` directory:
     ```
-    VITE_FIREBASE_API_KEY=your_api_key
-    VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
-    VITE_FIREBASE_PROJECT_ID=your_project_id
-    VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
-    VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-    VITE_FIREBASE_APP_ID=your_app_id
+    VITE_API_BASE_URL=http://localhost:5000
     ```
 3.  **Start the development server:**
     ```sh

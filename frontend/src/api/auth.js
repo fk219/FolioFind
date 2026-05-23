@@ -1,7 +1,7 @@
 import { http } from "./http";
 
-export function register({ email, password }) {
-  return http("/api/auth/register", { method: "POST", body: { email, password } });
+export function register({ email, password, fullName }) {
+  return http("/api/auth/register", { method: "POST", body: { email, password, fullName } });
 }
 
 export function login({ email, password }) {

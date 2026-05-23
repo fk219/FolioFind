@@ -6,7 +6,8 @@ import { updateBook } from '../api/books';
 
 const EditBooks = () => {
   const { id } = useParams();
-  const { bookTitle, authorName, imageURL, category, bookDescription, bookPDFURL } = useLoaderData();
+  const bookData = useLoaderData() || {};
+  const { bookTitle, authorName, imageURL, category, bookDescription, bookPDFURL } = bookData;
   const { token } = useContext(AuthContext);
 
   const bookCategories = [

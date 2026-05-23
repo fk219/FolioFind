@@ -1,3 +1,203 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-display: 'Plus Jakarta Sans', 'Poppins', system-ui, sans-serif;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --color-primary-light: 16 185 129; /* Emerald 500 */
+    --color-secondary-light: 20 184 166; /* Teal 500 */
+  }
+
+  * {
+    font-family: var(--font-sans);
+    outline-color: rgba(16, 185, 129, 0.4);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-[#faf9f6] text-gray-900 transition-colors duration-300;
+    font-feature-settings: 'rlig' 1, 'calt' 1, 'tnum' 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    @apply font-semibold tracking-[-0.03em] text-gray-950;
+  }
+
+  h1 { @apply text-5xl md:text-6xl lg:text-7xl leading-[1.02] font-semibold; }
+  h2 { @apply text-4xl md:text-5xl leading-tight font-semibold tracking-[-0.025em]; }
+  h3 { @apply text-2xl md:text-3xl font-semibold tracking-[-0.02em]; }
+  h4 { @apply text-xl md:text-2xl font-semibold; }
+  
+  p { @apply leading-relaxed text-gray-600 font-[450]; }
+
+  a { @apply transition-all duration-300 ease-in-out; }
+
+  button, input, textarea, select {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  ::selection {
+    @apply bg-emerald-200 text-emerald-950;
+  }
+
+  /* Sleek Minimalist Scrollbars */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { @apply bg-transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-emerald-600/20 rounded-full hover:bg-emerald-600/40 transition-colors; }
+}
+
+@layer components {
+  /* Premium Dynamic Gradient Buttons */
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-8 py-3.5 rounded-2xl font-semibold text-white 
+           bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-600 hover:from-emerald-700 hover:to-teal-700
+           shadow-[0_4px_20px_rgba(16,185,129,0.25)] hover:shadow-[0_10px_30px_rgba(16,185,129,0.35)] 
+           hover:-translate-y-0.5 active:scale-[0.98] 
+           transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-8 py-3.5 rounded-2xl font-semibold 
+           text-emerald-800 bg-emerald-50 hover:bg-emerald-100 hover:shadow-md hover:-translate-y-0.5 
+           active:scale-[0.98] transition-all duration-300 border border-emerald-100;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center px-8 py-3.5 rounded-2xl font-semibold 
+           text-emerald-700 border-2 border-emerald-600/80 hover:bg-emerald-50 hover:border-emerald-600 
+           hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-2xl font-medium 
+           text-gray-700 hover:bg-gray-100 active:bg-gray-200 transition-all duration-300;
+  }
+
+  /* Stunning Modern Glassmorphic Card Engine */
+  .card {
+    @apply bg-white/80 backdrop-blur-md rounded-3xl shadow-sm border border-gray-100/90 
+           hover:shadow-xl hover:border-emerald-500/20 hover:-translate-y-1 
+           transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)];
+  }
+
+  .book-card {
+    @apply bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100/90
+           hover:shadow-2xl hover:border-emerald-600/20 hover:-translate-y-1.5
+           transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)];
+  }
+
+  /* Elegant Badges */
+  .badge {
+    @apply inline-flex items-center px-4 py-1 rounded-full text-xs font-semibold 
+           bg-emerald-50 text-emerald-800 ring-1 ring-inset ring-emerald-600/10;
+  }
+
+  .badge-warm {
+    @apply inline-flex items-center px-4 py-1 rounded-full text-xs font-semibold 
+           bg-amber-50 text-amber-800 ring-1 ring-inset ring-amber-600/10;
+  }
+
+  /* Typography Gradients */
+  .gradient-brand {
+    @apply bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 bg-clip-text text-transparent;
+    animation: gradient 5s ease infinite;
+    background-size: 200% auto;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent;
+  }
+
+  /* Premium Responsive Input Controls */
+  .input-field {
+    @apply w-full px-5 py-4 rounded-2xl border border-gray-200/80 bg-white/70 backdrop-blur-sm 
+           focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 
+           text-[15px] placeholder:text-gray-400 transition-all duration-300;
+  }
+
+  .input-field:focus {
+    @apply shadow-lg bg-white;
+  }
+
+  /* Layout Spacing */
+  .page-section {
+    @apply py-20 md:py-24 lg:py-28 px-4 md:px-8 lg:px-16 overflow-hidden;
+  }
+
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 md:px-8;
+  }
+
+  .section-header {
+    @apply mb-16 text-center space-y-3;
+  }
+
+  .section-header h2 {
+    @apply mb-2;
+  }
+
+  .section-header p {
+    @apply max-w-2xl mx-auto text-lg text-gray-500;
+  }
+
+  /* Interactive Elements */
+  .glass-effect {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 rounded-3xl shadow-sm;
+  }
+
+  .glow-effect {
+    @apply shadow-[0_0_40px_rgba(16,185,129,0.1)];
+  }
+
+  /* Soft Book Cover Cast Shadows */
+  .book-cover {
+    @apply rounded-xl shadow-[5px_15px_30px_rgba(0,0,0,0.12)] group-hover:shadow-[5px_25px_40px_rgba(16,185,129,0.18)]
+           transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)];
+  }
+}
+
+@layer utilities {
+  .font-display { font-family: var(--font-display); }
+  .font-serif { font-family: var(--font-serif); }
+
+  .text-balance { text-wrap: balance; }
+
+  /* Premium Keyframe Animations */
+  .animate-fade-in-up {
+    animation: fadeInUp 0.7s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  }
+
+  .animate-float {
+    animation: float 5s ease-in-out infinite;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(1deg); }
+  }
+
+  @keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .premium-shadow {
+    box-shadow: 0 15px 50px -12px rgba(16, 185, 129, 0.15), 0 4px 12px -2px rgba(16, 185, 129, 0.05);
+  }
+}

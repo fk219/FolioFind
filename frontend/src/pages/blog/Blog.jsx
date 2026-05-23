@@ -84,53 +84,32 @@ const Blog = () => {
 
 
   return (
-    <div>
-      <div className="bg-white py-24 sm:py-32">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl lg:mx-0">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">From the blog</h2>
-            <p className="mt-2 text-lg leading-8 text-gray-600">
-              Learn how to grow your business with our expert advice.
-            </p>
-          </div>
-          <div className="mx-auto mt-10 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 border-t border-gray-200 pt-10 sm:mt-16 sm:pt-16 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-            {posts.map((post) => (
-              <article key={post.id} className="flex max-w-xl flex-col items-start justify-between">
-                <div className="flex items-center gap-x-4 text-xs">
-                  <time dateTime={post.datetime} className="text-gray-500">
-                    {post.date}
-                  </time>
-                  <a
-                    href={post.category.href}
-                    className="relative z-10 rounded-full bg-gray-50 px-3 py-1.5 font-medium text-gray-600 hover:bg-gray-100"
-                  >
-                    {post.category.title}
-                  </a>
+    <div className="pt-20 bg-[#f8f7f4] pb-20">
+      <div className="container-custom">
+        <div className="max-w-2xl mx-auto text-center pt-8 mb-14">
+          <div className="badge mx-auto mb-3">Stories &amp; essays</div>
+          <h1 className="text-6xl tracking-[-2px] font-semibold">From the FolioFid Journal</h1>
+          <p className="mt-4 text-xl text-gray-600">Thoughts on books, reading culture, and the joy of collecting.</p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {posts.map((post) => (
+            <a href={post.href} key={post.id} className="card group p-8 block h-full">
+              <div className="flex gap-3 text-xs text-gray-500 mb-5">
+                <time>{post.date}</time>
+                <span className="text-emerald-600 font-medium">{post.category.title}</span>
+              </div>
+              <h3 className="text-2xl font-semibold tracking-tight group-hover:text-emerald-700 transition leading-snug">{post.title}</h3>
+              <p className="mt-4 text-gray-600 line-clamp-3">{post.description}</p>
+              <div className="flex items-center gap-3 mt-8 pt-6 border-t">
+                <img src={post.author.imageUrl} alt="" className="w-9 h-9 rounded-full" />
+                <div className="text-sm">
+                  <div className="font-medium text-gray-900">{post.author.name}</div>
+                  <div className="text-gray-500 text-xs">{post.author.role}</div>
                 </div>
-                <div className="group relative">
-                  <h3 className="mt-3 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600">
-                    <a href={post.href}>
-                      <span className="absolute inset-0" />
-                      {post.title}
-                    </a>
-                  </h3>
-                  <p className="mt-5 line-clamp-3 text-sm leading-6 text-gray-600">{post.description}</p>
-                </div>
-                <div className="relative mt-8 flex items-center gap-x-4">
-                  <img src={post.author.imageUrl} alt="" className="h-10 w-10 rounded-full bg-gray-50" />
-                  <div className="text-sm leading-6">
-                    <p className="font-semibold text-gray-900">
-                      <a href={post.author.href}>
-                        <span className="absolute inset-0" />
-                        {post.author.name}
-                      </a>
-                    </p>
-                    <p className="text-gray-600">{post.author.role}</p>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
+              </div>
+            </a>
+          ))}
         </div>
       </div>
     </div>

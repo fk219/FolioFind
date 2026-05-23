@@ -1,7 +1,7 @@
 {
-  "name": "bookmanagerserver",
+  "name": "foliofid-server",
   "version": "1.0.0",
-  "description": "MERN book store backend with JWT auth and admin dashboard",
+  "description": "FolioFid Backend - Book Marketplace with JWT Auth",
   "main": "src/server.js",
   "scripts": {
     "dev": "nodemon src/server.js",

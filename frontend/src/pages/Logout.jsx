@@ -1,46 +1,42 @@
-import { useContext, useState } from 'react'
-import { Button, Modal } from 'flowbite-react';
-import { Link } from 'react-router-dom';
-import { AuthContext } from '../contexts/AuthProvider';
+import { useContext } from 'react'
+import { Link } from 'react-router-dom'
+import { AuthContext } from '../contexts/AuthProvider'
 
 const Logout = () => {
-    const [openModal, setOpenModal] = useState("");
-  const props = { openModal, setOpenModal };
+    const { logOut } = useContext(AuthContext)
 
+    const handleSignOut = () => {
+        logOut()
+    }
 
-//   use context 
-const {logOut} = useContext(AuthContext);
-
-  const hangleSignOut = () => {
-    logOut();
-  }
-  return (
-    <div className='h-screen flex items-center justify-center'>
-        <Button onClick={() => props.setOpenModal('default')}>Click here to Logout</Button>
-      <Modal show={props.openModal === 'default'} onClose={() => props.setOpenModal(undefined)}>
-        <Modal.Header>Terms of Service</Modal.Header>
-        <Modal.Body>
-          <div className="space-y-6">
-            <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-              With less than a month to go before the European Union enacts new consumer privacy laws for its citizens,
-              companies around the world are updating their terms of service agreements to comply.
-            </p>
-            <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-              The European Unions General Data Protection Regulation (G.D.P.R.) goes into effect on May 25 and is meant to
-              ensure a common set of data rights in the European Union. It requires organizations to notify users as soon as
-              possible of high-risk data breaches that could personally affect them.
-            </p>
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Link to="/" onClick={hangleSignOut}><Button onClick={() => props.setOpenModal(undefined)}>Yes, I want to sign out!</Button></Link>
-          <Button color="gray" onClick={() => props.setOpenModal(undefined)}>
-            Decline
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </div>
-  )
+    return (
+        <div className="h-screen flex items-center justify-center bg-gray-50">
+            <div className="bg-white rounded-2xl shadow-lg p-10 text-center max-w-md mx-4">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">Sign Out</h2>
+                <p className="text-gray-500 mb-8">Are you sure you want to sign out?</p>
+                <div className="flex gap-4 justify-center">
+                    <Link
+                        to="/"
+                        onClick={handleSignOut}
+                        className="bg-red-500 hover:bg-red-600 text-white font-medium px-6 py-2 rounded-lg transition"
+                    >
+                        Yes, Sign Out
+                    </Link>
+                    <Link
+                        to="/"
+                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-6 py-2 rounded-lg transition"
+                    >
+                        Cancel
+                    </Link>
+                </div>
+            </div>
+        </div>
+    )
 }
 
 export default Logout

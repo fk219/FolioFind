@@ -29,9 +29,9 @@ export default function AuthProvider({ children }) {
     return res;
   }
 
-  async function createUser(email, password) {
+  async function createUser(email, password, fullName) {
     setLoading(true);
-    const res = await authApi.register({ email, password });
+    const res = await authApi.register({ email, password, fullName });
     localStorage.setItem(TOKEN_KEY, res.token);
     setToken(res.token);
     await refreshMe(res.token);

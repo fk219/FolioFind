@@ -1,27 +1,38 @@
-import { Table } from 'flowbite-react'
+import { Table, Spinner } from 'flowbite-react'
 import { useContext, useEffect, useState } from 'react'
-import { Pagination } from 'flowbite-react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthProvider';
 import { deleteBook, listBooks } from '../api/books';
 
 const ManageBooks = () => {
     const [allBooks, setAllBooks] = useState([]);
+    const [loading, setLoading] = useState(true);
     const { token } = useContext(AuthContext);
     useEffect(() => {
         let cancelled = false;
+        setLoading(true);
         (async () => {
             try {
-                const data = await listBooks();
-                if (!cancelled) setAllBooks(data);
+                const { books } = await listBooks();
+                if (!cancelled) setAllBooks(books);
             } catch (e) {
                 if (!cancelled) setAllBooks([]);
+            } finally {
+                if (!cancelled) setLoading(false);
             }
         })();
         return () => {
             cancelled = true;
         };
     }, []);
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <Spinner aria-label="Loading books" size="xl" />
+            </div>
+        );
+    }
 
     // delete a books
     const handleDelete = async (id) => {
@@ -79,7 +90,7 @@ const ManageBooks = () => {
                                 {book.category}
                             </Table.Cell>
                             <Table.Cell>
-                                $10.99
+                                {book.price ? `$${book.price.toFixed(2)}` : '-'}
                             </Table.Cell>
                             <Table.Cell>
                                 <Link
@@ -96,18 +107,9 @@ const ManageBooks = () => {
                 }
             </Table>
 
-            {/* pagination */}
-            <div className="flex items-center justify-center text-center mt-8">
-                <Pagination
-                    currentPage={1}
-                    layout="pagination"
-                    nextLabel="Go forward"
-                    onPageChange={() => {}}
-                    previousLabel="Go back"
-                    showIcons
-                    totalPages={1}
-                />
-            </div>
+            {allBooks.length > 10 && (
+                <p className="text-center text-gray-400 text-sm mt-6">{allBooks.length} books total</p>
+            )}
         </div>
     )
 }

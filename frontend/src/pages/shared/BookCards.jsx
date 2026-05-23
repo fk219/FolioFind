@@ -9,60 +9,58 @@ import { Link } from 'react-router-dom';
 
 const BookCards = ({headline, books}) => {
     return (
-        <div className='my-16 px-4 lg:px-24'>
-            <h2 className='text-5xl my-5 font-bold text-center'>{headline}</h2>
+        <div className="page-section bg-white">
+            <div className="container-custom">
+                <div className="section-header">
+                    <h2 className="tracking-[-1px]">{headline}</h2>
+                    <p>Handpicked titles our community is loving right now</p>
+                </div>
 
-            {/* cards */}
-            <div className='mt-20'>
                 <Swiper
                     slidesPerView={1}
-                    spaceBetween={10}
-                    pagination={{
-                        clickable: true,
-                    }}
+                    spaceBetween={20}
+                    pagination={{ clickable: true }}
                     breakpoints={{
-                        640: {
-                            slidesPerView: 1,
-                            spaceBetween: 20,
-                        },
-                        768: {
-                            slidesPerView: 3,
-                            spaceBetween: 40,
-                        },
-                        1024: {
-                            slidesPerView: 4,
-                            spaceBetween: 50,
-                        },
+                        640: { slidesPerView: 2, spaceBetween: 20 },
+                        768: { slidesPerView: 3, spaceBetween: 24 },
+                        1024: { slidesPerView: 4, spaceBetween: 28 },
                     }}
                     modules={[Pagination]}
-                    className=" w-full h-full"
                 >
-                    {
-                        books.map(book => <SwiperSlide className='text-center flex items-center justify-center' key={book._id}>
-                            <Link to={`/book/${book._id}`} className='cursor-pointer'>
-                                <div className='bg-gray-100 p-8 rounded-lg relative'>
-                                    <img src={book.imageURL} alt="" className='w-full' />
-                                    <div className='absolute top-3 right-3 bg-blue-700 hover:bg-black p-2 rounded '>
-                                        <FaCartShopping className='w-4 h-4 text-white'/>
+                    {books.map(book => (
+                        <SwiperSlide key={book._id}>
+                            <Link to={`/book/${book._id}`} className="group block">
+                                <div className="book-card">
+                                    <div className="relative bg-[#f4f3ef] p-6 flex items-center justify-center aspect-[4/3.4] overflow-hidden">
+                                        <img 
+                                            src={book.imageURL} 
+                                            alt={book.bookTitle} 
+                                            className="book-cover max-h-[210px] w-auto object-contain group-hover:scale-[1.03] transition-transform duration-500" 
+                                        />
+                                        <div className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-2xl bg-white/90 backdrop-blur shadow-sm text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                                            <FaCartShopping className="w-4 h-4" />
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div className='mt-5 mb-8 text-left space-y-2 flex justify-between items-start'>
-                                    <div>
-                                        <h3 className='text-black font-semibold'>{book.bookTitle}</h3>
-                                        <p>{book.authorName}</p>
-                                    </div>
-                                    <div>
-                                        <p className='font-bold text-blue-700'>$10.00</p>
+                                    <div className="p-6 pt-5 flex justify-between items-start gap-4">
+                                        <div className="min-w-0">
+                                            <h3 className="font-semibold text-gray-900 leading-tight line-clamp-2 group-hover:text-emerald-700 transition">
+                                                {book.bookTitle}
+                                            </h3>
+                                            <p className="text-sm text-gray-500 mt-1 truncate">{book.authorName}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="font-semibold text-emerald-700 text-lg tracking-tight">
+                                                {book.price ? `$${Number(book.price).toFixed(2)}` : ''}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </Link>
-                        </SwiperSlide>)
-                    }
-
+                        </SwiperSlide>
+                    ))}
                 </Swiper>
             </div>
-
         </div>
     )
 }
