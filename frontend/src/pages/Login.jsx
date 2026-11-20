@@ -1,92 +1,115 @@
 import { useContext, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { FaEye, FaEyeSlash } from 'react-icons/fa6'
 import { AuthContext } from '../contexts/AuthProvider'
-import { FaBook } from 'react-icons/fa6'
+import AuthFrame from '../components/AuthFrame'
 
 export default function Login() {
-    const [errorMessage, setErrorMessage] = useState('')
-    const [loading, setLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const { login } = useContext(AuthContext)
+  const location = useLocation()
+  const navigate = useNavigate()
 
-    const { login } = useContext(AuthContext)
-    const location = useLocation()
-    const navigate = useNavigate()
+  const from = location.state?.from?.pathname || '/reading-room'
 
-    const from = location.state?.from?.pathname || '/'
-
-    const handleLogin = async (event) => {
-        event.preventDefault()
-        setLoading(true)
-        setErrorMessage('')
-        const form = event.target
-        const email = form.email.value
-        const password = form.password.value
-        try {
-            await login(email, password)
-            navigate(from, { replace: true })
-        } catch (error) {
-            setErrorMessage(error.message || 'Invalid email or password')
-        } finally {
-            setLoading(false)
-        }
+  const handleLogin = async (event) => {
+    event.preventDefault()
+    setLoading(true)
+    setErrorMessage('')
+    const form = event.target
+    try {
+      await login(form.email.value.trim(), form.password.value)
+      navigate(from, { replace: true })
+    } catch (error) {
+      setErrorMessage(error.message || 'Invalid email or password')
+    } finally {
+      setLoading(false)
     }
+  }
 
-    return (
-        <div className="min-h-[100dvh] bg-[#f8f7f4] flex items-center justify-center py-12 px-4">
-            <div className="w-full max-w-[440px]">
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center gap-3 mb-4">
-                        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center">
-                            <FaBook className="text-white text-2xl" />
-                        </div>
-                        <span className="font-semibold text-3xl tracking-[-1px]">FolioFid</span>
-                    </div>
-                    <h1 className="text-4xl tracking-[-1.5px] font-semibold">Welcome back</h1>
-                    <p className="mt-2 text-gray-600">Sign in to continue your reading journey</p>
-                </div>
-
-                <div className="card p-8 md:p-10">
-                    <form onSubmit={handleLogin} className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-medium mb-1.5 text-gray-700">Email address</label>
-                            <input 
-                                id="email" name="email" type="email" 
-                                className="input-field" 
-                                placeholder="you@reading.com" 
-                                required 
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium mb-1.5 text-gray-700">Password</label>
-                            <input 
-                                id="password" name="password" type="password" 
-                                className="input-field" 
-                                placeholder="••••••••" 
-                                required 
-                            />
-                        </div>
-
-                        {errorMessage && (
-                            <div className="text-red-600 text-sm bg-red-50 border border-red-100 px-4 py-2.5 rounded-2xl">
-                                {errorMessage}
-                            </div>
-                        )}
-
-                        <button 
-                            type="submit" 
-                            disabled={loading} 
-                            className="btn-primary w-full text-base py-4"
-                        >
-                            {loading ? 'Signing you in...' : 'Sign in to FolioFid'}
-                        </button>
-
-                        <p className="text-center text-sm text-gray-600 pt-2">
-                            New here?{' '}
-                            <Link to="/create-user" className="font-semibold text-emerald-700 hover:underline">Create an account</Link>
-                        </p>
-                    </form>
-                </div>
-            </div>
+  return (
+    <AuthFrame
+      eyebrow="Reader sign in"
+      title="Come back to your shelf."
+      description="Your reading room, listings, and account in one place."
+    >
+      <form onSubmit={handleLogin} className="mt-8 max-w-md space-y-5">
+        <div>
+          <label htmlFor="email" className="field-label">
+            Email address
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            className="input-field mt-2"
+            placeholder="you@example.com"
+            required
+          />
         </div>
-    )
+
+        <div>
+          <label htmlFor="password" className="field-label">
+            Password
+          </label>
+          <div className="relative">
+            <input
+              id="password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
+              className="input-field mt-2 pr-12"
+              placeholder="Your password"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((value) => !value)}
+              className="absolute right-0 top-2 flex h-12 w-12 items-center justify-center text-muted transition-colors hover:text-ink"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <FaEyeSlash className="h-4 w-4" aria-hidden="true" /> : <FaEye className="h-4 w-4" aria-hidden="true" />}
+            </button>
+          </div>
+        </div>
+
+        {errorMessage && (
+          <p className="border border-oxblood/30 bg-oxblood/5 px-4 py-3 text-sm text-oxblood" role="alert">
+            {errorMessage}
+          </p>
+        )}
+
+        <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-50">
+          {loading ? 'Signing in…' : 'Sign in'}
+        </button>
+
+        <p className="text-sm text-muted">
+          New here?{' '}
+          <Link to="/create-user" state={location.state} className="link-line font-medium text-oxblood">
+            Create an account
+          </Link>
+        </p>
+      </form>
+
+      <div className="mt-8 max-w-md border border-line bg-paper p-4">
+        <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-oxblood">Seeded demo administrator</p>
+        <dl className="mt-3 space-y-1.5 font-mono text-[11px] text-ink">
+          <div className="flex flex-wrap gap-x-2">
+            <dt className="text-muted">Email</dt>
+            <dd>admin@example.com</dd>
+          </div>
+          <div className="flex flex-wrap gap-x-2">
+            <dt className="text-muted">Password</dt>
+            <dd>admin123</dd>
+          </div>
+        </dl>
+        <p className="mt-3 text-[11px] leading-relaxed text-muted">
+          Reader accounts can be created from the link above. Demo data only.
+        </p>
+      </div>
+    </AuthFrame>
+  )
 }

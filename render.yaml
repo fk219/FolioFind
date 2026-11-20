@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: foliofind
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm install --prefix backend && npm install --prefix frontend && npm run build
+    startCommand: node backend/src/server.js
+    healthCheckPath: /api/books
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "20"
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: ADMIN_EMAIL
+        value: admin@example.com
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false

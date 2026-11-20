@@ -9,18 +9,17 @@ const errorHandler = require("./middleware/errorHandler");
 function createApp({ collections }) {
   const app = express();
 
-  // Configure Helmet with custom Image CSP to allow OpenLibrary and curated cover assets
   app.use(
     helmet({
       contentSecurityPolicy: {
         directives: {
           ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-          "img-src": ["'self'", "data:", "https://covers.openlibrary.org", "https://picsum.photos", "https://images.unsplash.com", "https://via.placeholder.com"],
-        },
-      },
+          "img-src": ["'self'", "data:"]
+        }
+      }
     })
   );
-  
+
   app.use(cors({ origin: corsOrigin }));
   app.use(express.json());
 
@@ -33,6 +32,7 @@ function createApp({ collections }) {
 
   app.use("/api/auth", require("./routes/auth")(collections));
   app.use("/api/books", require("./routes/books")(collections));
+  app.use("/api/shelf", require("./routes/shelf")(collections));
 
   // Wildcard client router fallback - routes HTML page requests to index.html
   app.get("*", (req, res, next) => {

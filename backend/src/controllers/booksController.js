@@ -9,9 +9,30 @@ function assertObjectId(id) {
   return new ObjectId(id);
 }
 
-async function list(collections, { category, page = 1, limit = 12 } = {}) {
+const SORTS = {
+  newest: { createdAt: -1 },
+  "price-asc": { price: 1 },
+  "price-desc": { price: -1 },
+  title: { bookTitle: 1 }
+};
+
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+async function list(
+  collections,
+  { category, page = 1, limit = 12, q, minPrice, maxPrice, sort = "newest" } = {}
+) {
   const query = { status: { $ne: "sold" } };
   if (category) query.category = category;
+  if (q) {
+    const pattern = new RegExp(escapeRegex(String(q)), "i");
+    query.$or = [{ bookTitle: pattern }, { authorName: pattern }];
+  }
+  if (typeof minPrice === "number" || typeof maxPrice === "number") {
+    query.price = {};
+    if (typeof minPrice === "number") query.price.$gte = minPrice;
+    if (typeof maxPrice === "number") query.price.$lte = maxPrice;
+  }
 
   const total = await collections.books.countDocuments(query);
   const totalPages = Math.ceil(total / limit) || 1;
@@ -19,7 +40,7 @@ async function list(collections, { category, page = 1, limit = 12 } = {}) {
 
   const books = await collections.books
     .find(query)
-    .sort({ createdAt: -1 })
+    .sort(SORTS[sort] || SORTS.newest)
     .skip(skip)
     .limit(limit)
     .toArray();

@@ -12,10 +12,20 @@ module.exports = function booksRoutes(collections) {
       const category = req.query?.category ? String(req.query.category) : "";
       const page = Math.max(1, parseInt(req.query?.page, 10) || 1);
       const limit = Math.min(100, Math.max(1, parseInt(req.query?.limit, 10) || 12));
+      const q = req.query?.q ? String(req.query.q).trim().slice(0, 120) : "";
+      const minRaw = parseFloat(req.query?.minPrice);
+      const maxRaw = parseFloat(req.query?.maxPrice);
+      const sort = ["newest", "price-asc", "price-desc", "title"].includes(req.query?.sort)
+        ? String(req.query.sort)
+        : "newest";
       const result = await booksController.list(collections, {
         category: category || undefined,
         page,
-        limit
+        limit,
+        q: q || undefined,
+        minPrice: Number.isFinite(minRaw) ? minRaw : undefined,
+        maxPrice: Number.isFinite(maxRaw) ? maxRaw : undefined,
+        sort
       });
       res.json(result);
     } catch (e) {
@@ -26,12 +36,19 @@ module.exports = function booksRoutes(collections) {
   router.get("/stats", requireAuth, requireAdmin, async (req, res, next) => {
     try {
       const totalBooks = await collections.books.countDocuments();
-      const categories = await collections.books.distinct("category");
+      const categoryDocs = await collections.books
+        .find({}, { projection: { category: 1 } })
+        .toArray();
       const categoryCounts = {};
-      for (const cat of categories) {
-        categoryCounts[cat] = await collections.books.countDocuments({ category: cat });
+      for (const doc of categoryDocs) {
+        if (!doc.category) continue;
+        categoryCounts[doc.category] = (categoryCounts[doc.category] || 0) + 1;
       }
-      res.json({ totalBooks, totalCategories: categories.length, categoryCounts });
+      res.json({
+        totalBooks,
+        totalCategories: Object.keys(categoryCounts).length,
+        categoryCounts
+      });
     } catch (e) {
       next(e);
     }

@@ -1,119 +1,69 @@
-import { Spinner } from 'flowbite-react';
-import { useContext } from 'react'
-import { AuthContext } from '../../contexts/AuthProvider';
-const posts = [
+import { Link } from 'react-router-dom'
+import { FaArrowRight } from 'react-icons/fa6'
+
+const notes = [
   {
-    id: 1,
-    title: 'Boost your conversion rate',
-    href: '#',
-    description:
-      'Illo sint voluptas. Error voluptates culpa eligendi. Hic vel totam vitae illo. Non aliquid explicabo necessitatibus unde. Sed exercitationem placeat consectetur nulla deserunt vel. Iusto corrupti dicta.',
-    date: 'Mar 16, 2020',
-    datetime: '2020-03-16',
-    category: { title: 'Marketing', href: '#' },
-    author: {
-      name: 'Michael Foster',
-      role: 'Co-Founder / CTO',
-      href: '#',
-      imageUrl:
-        'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    },
+    number: '01',
+    title: 'How to read a condition note',
+    body: '“Good” is not a grade, it is a starting point. Look for the specific: a crease on the spine, a bumped corner, a dust jacket with a short tear. A seller who names the wear is easier to trust than one who only says the book is fine.',
+    takeaway: 'Specific beats glowing.'
   },
   {
-    id: 2,
-    title: 'Boost your conversion rate',
-    href: '#',
-    description:
-      'Illo sint voluptas. Error voluptates culpa eligendi. Hic vel totam vitae illo. Non aliquid explicabo necessitatibus unde. Sed exercitationem placeat consectetur nulla deserunt vel. Iusto corrupti dicta.',
-    date: 'Mar 16, 2020',
-    datetime: '2020-03-16',
-    category: { title: 'Marketing', href: '#' },
-    author: {
-      name: 'Michael Foster',
-      role: 'Co-Founder / CTO',
-      href: '#',
-      imageUrl:
-        'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    },
+    number: '02',
+    title: 'The edition is part of the book',
+    body: 'A 1961 Signet paperback and a 2019 hardcover are not the same object, even when the words match. Publisher, year, translator, and cover art all change the reading. If the edition matters to you, ask before the book changes hands.',
+    takeaway: 'Read the record, not just the title.'
   },
   {
-    id: 4,
-    title: 'Boost your conversion rate',
-    href: '#',
-    description:
-      'Illo sint voluptas. Error voluptates culpa eligendi. Hic vel totam vitae illo. Non aliquid explicabo necessitatibus unde. Sed exercitationem placeat consectetur nulla deserunt vel. Iusto corrupti dicta.',
-    date: 'Mar 16, 2020',
-    datetime: '2020-03-16',
-    category: { title: 'Marketing', href: '#' },
-    author: {
-      name: 'Michael Foster',
-      role: 'Co-Founder / CTO',
-      href: '#',
-      imageUrl:
-        'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    },
-  },
-  {
-    id: 3,
-    title: 'Boost your conversion rate',
-    href: '#',
-    description:
-      'Illo sint voluptas. Error voluptates culpa eligendi. Hic vel totam vitae illo. Non aliquid explicabo necessitatibus unde. Sed exercitationem placeat consectetur nulla deserunt vel. Iusto corrupti dicta.',
-    date: 'Mar 16, 2020',
-    datetime: '2020-03-16',
-    category: { title: 'Marketing', href: '#' },
-    author: {
-      name: 'Michael Foster',
-      role: 'Co-Founder / CTO',
-      href: '#',
-      imageUrl:
-        'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    },
-  },
-  // More posts...
+    number: '03',
+    title: 'A shelf is a queue, not a collection',
+    body: 'A reading room works when it tells you what to pick up next. Three shelves are enough: want to read, reading, finished. If a book has sat in “want to read” for a year, it is allowed to leave.',
+    takeaway: 'Keep the shelf honest.'
+  }
 ]
 
-const Blog = () => {
-  const {loading } = useContext(AuthContext);
-
-  if(loading) {
-    return <div className='text-center mt-28'>
-      <Spinner aria-label="Center-aligned spinner example" />
-    </div>
-  }
-
-
+export default function Blog() {
   return (
-    <div className="pt-20 bg-[#f8f7f4] pb-20">
-      <div className="container-custom">
-        <div className="max-w-2xl mx-auto text-center pt-8 mb-14">
-          <div className="badge mx-auto mb-3">Stories &amp; essays</div>
-          <h1 className="text-6xl tracking-[-2px] font-semibold">From the FolioFid Journal</h1>
-          <p className="mt-4 text-xl text-gray-600">Thoughts on books, reading culture, and the joy of collecting.</p>
+    <div className="bg-paper">
+      <section className="container-bookshop pb-16 pt-12 lg:pb-24 lg:pt-16">
+        <div className="border-b border-line pb-9">
+          <p className="eyebrow">Notes / For second-hand readers</p>
+          <h1 className="mt-4 max-w-[14ch] font-display text-[clamp(3rem,6.5vw,5.8rem)] font-light leading-[0.9] tracking-[-0.045em] text-ink">
+            Notes from the <span className="italic text-oxblood">second</span> shelf.
+          </h1>
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-muted">
+            Short, practical notes about buying books that have already been read. No author personas,
+            no invented dates — just the things worth looking at before a copy changes hands.
+          </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {posts.map((post) => (
-            <a href={post.href} key={post.id} className="card group p-8 block h-full">
-              <div className="flex gap-3 text-xs text-gray-500 mb-5">
-                <time>{post.date}</time>
-                <span className="text-emerald-600 font-medium">{post.category.title}</span>
+        <div className="mt-10">
+          {notes.map((note) => (
+            <article key={note.number} className="grid gap-6 border-b border-line py-9 sm:grid-cols-[4rem_1fr] lg:grid-cols-[4rem_1.4fr_1fr] lg:gap-12">
+              <span className="font-mono text-[10px] tracking-[0.14em] text-brass">{note.number}</span>
+              <div>
+                <h2 className="font-display text-3xl font-light leading-tight text-ink">{note.title}</h2>
+                <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted">{note.body}</p>
               </div>
-              <h3 className="text-2xl font-semibold tracking-tight group-hover:text-emerald-700 transition leading-snug">{post.title}</h3>
-              <p className="mt-4 text-gray-600 line-clamp-3">{post.description}</p>
-              <div className="flex items-center gap-3 mt-8 pt-6 border-t">
-                <img src={post.author.imageUrl} alt="" className="w-9 h-9 rounded-full" />
-                <div className="text-sm">
-                  <div className="font-medium text-gray-900">{post.author.name}</div>
-                  <div className="text-gray-500 text-xs">{post.author.role}</div>
-                </div>
+              <div className="lg:border-l lg:border-line lg:pl-8">
+                <p className="field-label">Keep in mind</p>
+                <p className="mt-2 max-w-[18ch] font-display text-xl italic leading-snug text-oxblood">{note.takeaway}</p>
               </div>
-            </a>
+            </article>
           ))}
         </div>
-      </div>
+
+        <div className="mt-12 flex flex-col justify-between gap-6 border border-line bg-white/60 p-6 sm:flex-row sm:items-center sm:p-8">
+          <div>
+            <p className="eyebrow">Put it into practice</p>
+            <p className="mt-2 font-display text-2xl text-ink">Open a copy’s record.</p>
+          </div>
+          <Link to="/shop" className="btn-primary">
+            Browse the shelves
+            <FaArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+          </Link>
+        </div>
+      </section>
     </div>
   )
 }
-
-export default Blog

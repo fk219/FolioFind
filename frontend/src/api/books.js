@@ -1,8 +1,12 @@
 import { http } from "./http";
 
-export async function listBooks({ category, page = 1, limit = 12 } = {}) {
+export async function listBooks({ category, q, minPrice, maxPrice, sort, page = 1, limit = 12 } = {}) {
   const params = new URLSearchParams();
   if (category) params.set("category", category);
+  if (q) params.set("q", q);
+  if (minPrice !== undefined && minPrice !== "") params.set("minPrice", String(minPrice));
+  if (maxPrice !== undefined && maxPrice !== "") params.set("maxPrice", String(maxPrice));
+  if (sort) params.set("sort", sort);
   params.set("page", String(page));
   params.set("limit", String(limit));
   const res = await http(`/api/books?${params}`);
@@ -12,6 +16,10 @@ export async function listBooks({ category, page = 1, limit = 12 } = {}) {
 export async function getBook(id) {
   const res = await http(`/api/books/${id}`);
   return res.book;
+}
+
+export function getBookStats({ token }) {
+  return http("/api/books/stats", { token });
 }
 
 export function createBook({ token, book }) {

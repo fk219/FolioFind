@@ -1,185 +1,376 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { listBooks } from '../../api/books'
+import { useEffect, useMemo, useState } from 'react';
+import { FaArrowLeft, FaArrowRight, FaMagnifyingGlass } from 'react-icons/fa6';
+import { listBooks } from '../../api/books';
+import BookCard from '../../components/BookCard';
 
-const CONDITIONS = ["New", "Like New", "Good", "Acceptable"]
+const CATEGORIES = [
+  'Fiction',
+  'Non-Fiction',
+  'Science',
+  'Technology',
+  'History',
+  'Biography',
+  'Fantasy',
+  'Mystery',
+  'Romance',
+  'Thriller',
+  'Horror',
+  'Self-Help',
+  'Children'
+];
 
-const CONDITION_COLORS = {
-  New: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
-  'Like New': 'bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300',
-  Good: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
-  Acceptable: 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300'
-}
+const SORTS = [
+  { value: 'newest', label: 'Newest first' },
+  { value: 'price-asc', label: 'Price, low to high' },
+  { value: 'price-desc', label: 'Price, high to low' },
+  { value: 'title', label: 'Title, A–Z' }
+];
+
+const PAGE_SIZE = 12;
 
 export default function Shop() {
-  const [books, setBooks] = useState([])
-  const [pagination, setPagination] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [selectedCategory, setSelectedCategory] = useState("")
-  const [categories, setCategories] = useState([])
-  const [search, setSearch] = useState("")
-  const [minPrice, setMinPrice] = useState("")
-  const [maxPrice, setMaxPrice] = useState("")
-  const [page, setPage] = useState(1)
+  const [books, setBooks] = useState([]);
+  const [pagination, setPagination] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const fetchBooks = useCallback(async (p) => {
-    setLoading(true)
-    try {
-      const result = await listBooks({ category: selectedCategory || undefined, page: p, limit: 12 })
-      setBooks(result.books)
-      setPagination(result.pagination)
-      const allCats = [...new Set(result.books.map(b => b.category).filter(Boolean))]
-      setCategories(prev => prev.length ? prev : allCats)
-    } catch {
-      setBooks([])
-      setPagination(null)
-    } finally {
-      setLoading(false)
-    }
-  }, [selectedCategory])
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [category, setCategory] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [sort, setSort] = useState('newest');
+  const [page, setPage] = useState(1);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    setPage(1)
-  }, [selectedCategory])
+    const timer = setTimeout(() => setDebouncedSearch(search.trim()), 350);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const priceError = useMemo(
+    () => minPrice !== '' && maxPrice !== '' && Number(minPrice) > Number(maxPrice),
+    [minPrice, maxPrice]
+  );
 
   useEffect(() => {
-    fetchBooks(page)
-  }, [fetchBooks, page])
+    let active = true;
+    setLoading(true);
+    setError('');
 
-  const filtered = useMemo(() => {
-    return books.filter(b => {
-      if (search) {
-        const q = search.toLowerCase()
-        if (!b.bookTitle?.toLowerCase().includes(q) && !b.authorName?.toLowerCase().includes(q)) return false
-      }
-      if (minPrice !== "" && (b.price == null || b.price < parseFloat(minPrice))) return false
-      if (maxPrice !== "" && (b.price == null || b.price > parseFloat(maxPrice))) return false
-      return true
+    listBooks({
+      category: category || undefined,
+      q: debouncedSearch || undefined,
+      minPrice: minPrice || undefined,
+      maxPrice: maxPrice || undefined,
+      sort,
+      page,
+      limit: PAGE_SIZE
     })
-  }, [books, search, minPrice, maxPrice])
+      .then((result) => {
+        if (!active) return;
+        setBooks(result.books || []);
+        setPagination(result.pagination);
+      })
+      .catch(() => {
+        if (!active) return;
+        setBooks([]);
+        setPagination(null);
+        setError('The catalogue could not be loaded.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [category, debouncedSearch, minPrice, maxPrice, sort, page, reloadKey]);
+
+  const updateFilter = (setter) => (event) => {
+    setter(event.target.value);
+    setPage(1);
+  };
+
+  const clearFilters = () => {
+    setSearch('');
+    setDebouncedSearch('');
+    setCategory('');
+    setMinPrice('');
+    setMaxPrice('');
+    setSort('newest');
+    setPage(1);
+  };
+
+  const hasFilters = Boolean(search || category || minPrice || maxPrice);
 
   return (
-    <div className="pt-20 pb-16 px-4 lg:px-24 bg-[#f8f7f4] min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center pt-8 pb-10">
-          <div className="badge mx-auto mb-4">Marketplace</div>
-          <h1 className="text-6xl tracking-[-2px] font-semibold">Discover books</h1>
-          <p className="text-xl text-gray-600 mt-3">Find your next great read from our curated collection</p>
+    <div className="bg-paper">
+      <section className="container-bookshop pb-10 pt-12 lg:pb-14 lg:pt-16" aria-labelledby="shop-title">
+        <div className="flex flex-col justify-between gap-8 border-b border-line pb-8 lg:flex-row lg:items-end">
+          <div>
+            <p className="eyebrow">Catalogue / Named copies</p>
+            <h1
+              id="shop-title"
+              className="mt-4 max-w-[13ch] font-display text-[clamp(3rem,6.5vw,5.8rem)] font-light leading-[0.9] tracking-[-0.045em] text-ink"
+            >
+              The <span className="italic text-oxblood">shelves.</span>
+            </h1>
+          </div>
+          <p className="max-w-sm text-base leading-relaxed text-muted">
+            Each result is a specific copy with an edition, a condition note, and a seller. Search by
+            title or author, then open the copy’s record.
+          </p>
         </div>
 
-        {/* Premium Filters */}
-        <div className="card p-8 mb-10">
-          <div className="flex flex-col lg:flex-row gap-5 items-end">
-            <div className="flex-1 w-full">
-              <label className="text-xs font-medium text-gray-500 mb-1.5 block">Search</label>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Title, author or keyword..."
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  className="input-field pl-11"
+        <form
+          role="search"
+          aria-label="Filter the catalogue"
+          onSubmit={(event) => event.preventDefault()}
+          className="mt-7 border border-line bg-white/60 p-4 sm:p-5"
+        >
+          <div className="grid gap-4 md:grid-cols-12 md:items-end">
+            <div className="md:col-span-5">
+              <label htmlFor="shop-search" className="field-label">
+                Search
+              </label>
+              <div className="relative mt-2">
+                <FaMagnifyingGlass
+                  className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted"
+                  aria-hidden="true"
                 />
-                <div className="absolute left-4 top-4 text-gray-400">⌘</div>
+                <input
+                  id="shop-search"
+                  type="search"
+                  value={search}
+                  onChange={updateFilter(setSearch)}
+                  className="input-field pl-9"
+                  placeholder="Title or author"
+                />
               </div>
             </div>
 
-            <div className="flex gap-3 w-full lg:w-auto">
-              <div className="flex-1 lg:w-28">
-                <label className="text-xs font-medium text-gray-500 mb-1.5 block">Min price</label>
-                <input type="number" placeholder="0" value={minPrice} onChange={e => setMinPrice(e.target.value)} className="input-field" />
-              </div>
-              <div className="flex-1 lg:w-28">
-                <label className="text-xs font-medium text-gray-500 mb-1.5 block">Max price</label>
-                <input type="number" placeholder="Any" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} className="input-field" />
-              </div>
+            <div className="md:col-span-2">
+              <label htmlFor="shop-min" className="field-label">
+                Min price
+              </label>
+              <input
+                id="shop-min"
+                type="number"
+                min="0"
+                step="0.01"
+                value={minPrice}
+                onChange={updateFilter(setMinPrice)}
+                className="input-field mt-2 tabular-nums"
+                placeholder="0"
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label htmlFor="shop-max" className="field-label">
+                Max price
+              </label>
+              <input
+                id="shop-max"
+                type="number"
+                min="0"
+                step="0.01"
+                value={maxPrice}
+                onChange={updateFilter(setMaxPrice)}
+                className="input-field mt-2 tabular-nums"
+                placeholder="Any"
+              />
+            </div>
+
+            <div className="md:col-span-3">
+              <label htmlFor="shop-sort" className="field-label">
+                Order
+              </label>
+              <select
+                id="shop-sort"
+                value={sort}
+                onChange={updateFilter(setSort)}
+                className="input-field mt-2"
+              >
+                {SORTS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
-          {/* Category Pills */}
-          <div className="flex flex-wrap gap-2 mt-6">
-            <button onClick={() => setSelectedCategory("")} className={`px-5 py-1.5 text-sm rounded-full font-medium transition ${!selectedCategory ? 'bg-emerald-600 text-white shadow' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
-              All books
+          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line pt-4">
+            <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-muted">Category</span>
+            <button
+              type="button"
+              onClick={() => {
+                setCategory('');
+                setPage(1);
+              }}
+              aria-pressed={!category}
+              className={`font-mono text-[10px] uppercase tracking-[0.1em] transition-colors ${
+                !category ? 'text-oxblood underline underline-offset-4' : 'text-muted hover:text-ink'
+              }`}
+            >
+              All
             </button>
-            {categories.map(cat => (
-              <button key={cat} onClick={() => setSelectedCategory(cat)} className={`px-5 py-1.5 text-sm rounded-full font-medium transition ${selectedCategory === cat ? 'bg-emerald-600 text-white shadow' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
-                {cat}
+            {CATEGORIES.map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => {
+                  setCategory(item);
+                  setPage(1);
+                }}
+                aria-pressed={category === item}
+                className={`font-mono text-[10px] uppercase tracking-[0.1em] transition-colors ${
+                  category === item ? 'text-oxblood underline underline-offset-4' : 'text-muted hover:text-ink'
+                }`}
+              >
+                {item}
               </button>
             ))}
+            {hasFilters && (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="ml-auto font-mono text-[10px] uppercase tracking-[0.1em] text-oxblood underline underline-offset-4"
+              >
+                Clear filters
+              </button>
+            )}
           </div>
+        </form>
+
+        {priceError && (
+          <p className="mt-3 text-sm text-oxblood" role="alert">
+            The minimum price is higher than the maximum price.
+          </p>
+        )}
+      </section>
+
+      <section className="container-bookshop pb-16 lg:pb-24" aria-labelledby="results-title">
+        <h2 id="results-title" className="sr-only">
+          Catalogue results
+        </h2>
+
+        <div className="flex flex-col justify-between gap-3 border-b border-line pb-4 sm:flex-row sm:items-center">
+          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted" aria-live="polite">
+            {loading
+              ? 'Opening the catalogue'
+              : pagination
+                ? `${pagination.total} cop${pagination.total === 1 ? 'y' : 'ies'} on the shelves`
+                : 'No copies found'}
+          </p>
+          {pagination && pagination.totalPages > 1 && (
+            <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
+              Page <span className="tabular-nums text-ink">{page}</span> of{' '}
+              <span className="tabular-nums text-ink">{pagination.totalPages}</span>
+            </p>
+          )}
         </div>
 
-        {loading ? (
-          <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="card p-0 overflow-hidden animate-pulse">
-                <div className="h-60 bg-gray-100" />
-                <div className="p-6 space-y-3">
-                  <div className="h-4 bg-gray-100 rounded w-3/4" />
-                  <div className="h-3 bg-gray-100 rounded w-1/2" />
+        {error ? (
+          <div className="mt-8 border border-line bg-white/60 p-10">
+            <p className="font-display text-3xl text-ink">The shelves are unavailable.</p>
+            <p className="mt-3 max-w-md text-sm leading-relaxed text-muted">
+              The catalogue request failed. This is a server problem, not an empty shelf.
+            </p>
+            <button type="button" onClick={() => setReloadKey((key) => key + 1)} className="btn-outline mt-6">
+              Try again
+            </button>
+          </div>
+        ) : loading ? (
+          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <div key={index} className="border border-line bg-white/60">
+                <div className="aspect-[4/5] animate-pulse bg-parchment" />
+                <div className="space-y-3 border-t border-line p-5">
+                  <div className="h-3 w-1/3 animate-pulse bg-parchment" />
+                  <div className="h-5 w-2/3 animate-pulse bg-parchment" />
+                  <div className="h-3 w-1/2 animate-pulse bg-parchment" />
                 </div>
               </div>
             ))}
           </div>
-        ) : filtered.length === 0 ? (
-          <div className="text-center py-24">
-            <p className="text-xl text-gray-500">No books match your search.</p>
-            <button onClick={() => { setSearch(""); setMinPrice(""); setMaxPrice(""); setSelectedCategory("") }} className="btn-ghost mt-6">Clear filters</button>
+        ) : books.length === 0 ? (
+          <div className="mt-8 border border-line bg-white/60 px-6 py-16 text-center">
+            <p className="eyebrow">Nothing matches</p>
+            <p className="mt-4 font-display text-3xl text-ink">No copies on this shelf.</p>
+            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted">
+              Try a different category, a wider price range, or clear the search.
+            </p>
+            <button type="button" onClick={clearFilters} className="btn-outline mt-6">
+              Clear filters
+            </button>
           </div>
         ) : (
-          <>
-            <p className="text-sm text-center text-gray-500 mb-8">
-              Showing <span className="font-semibold text-gray-700">{filtered.length}</span> beautiful books
-            </p>
+          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {books.map((book, index) => (
+              <BookCard key={book._id} book={book} priority={index < 4} />
+            ))}
+          </div>
+        )}
 
-            <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6">
-              {filtered.map(book => (
-                <Link to={`/book/${book._id}`} key={book._id} className="group">
-                  <div className="book-card h-full flex flex-col">
-                    <div className="relative bg-[#f4f3ef] aspect-[16/10] flex items-center justify-center overflow-hidden">
-                      <img 
-                        src={book.imageURL} 
-                        alt={book.bookTitle} 
-                        className="max-h-[210px] object-contain group-hover:scale-[1.04] transition-transform duration-500" 
-                        loading="lazy"
-                      />
-                      {book.condition && (
-                        <span className="absolute top-4 left-4 badge text-xs">{book.condition}</span>
-                      )}
-                    </div>
-                    <div className="p-6 flex-1 flex flex-col">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-xl leading-tight group-hover:text-emerald-700 transition line-clamp-2">{book.bookTitle}</h3>
-                        <p className="text-gray-500 mt-1 text-sm">{book.authorName}</p>
-                      </div>
-                      <div className="flex items-end justify-between pt-6 mt-auto border-t">
-                        <span className="text-xs px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 font-medium">{book.category}</span>
-                        {book.price != null && <span className="font-semibold text-2xl tracking-tighter text-emerald-700">${Number(book.price).toFixed(2)}</span>}
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+        {!loading && !error && pagination && pagination.totalPages > 1 && (
+          <nav className="mt-12 flex items-center justify-between border-t border-line pt-6" aria-label="Catalogue pages">
+            <button
+              type="button"
+              onClick={() => setPage((value) => Math.max(1, value - 1))}
+              disabled={!pagination.hasPrev}
+              className="inline-flex min-h-11 items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-ink transition-colors hover:text-oxblood disabled:cursor-not-allowed disabled:opacity-30"
+            >
+              <FaArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+              Previous
+            </button>
+
+            <div className="hidden items-center gap-1 sm:flex">
+              {Array.from({ length: pagination.totalPages }, (_, index) => index + 1)
+                .filter(
+                  (number) =>
+                    number === 1 ||
+                    number === pagination.totalPages ||
+                    Math.abs(number - page) <= 1
+                )
+                .map((number, index, list) => (
+                  <span key={number} className="flex items-center gap-1">
+                    {index > 0 && number - list[index - 1] > 1 && (
+                      <span className="px-1 font-mono text-xs text-muted">…</span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setPage(number)}
+                      aria-current={number === page ? 'page' : undefined}
+                      className={`flex h-10 w-10 items-center justify-center font-mono text-xs transition-colors ${
+                        number === page
+                          ? 'bg-oxblood text-paper'
+                          : 'border border-line text-muted hover:border-ink hover:text-ink'
+                      }`}
+                    >
+                      {number}
+                    </button>
+                  </span>
+                ))}
             </div>
 
-            {pagination && pagination.totalPages > 1 && (
-              <div className="flex justify-center gap-2 mt-14">
-                <button onClick={() => setPage(p => Math.max(1, p-1))} disabled={!pagination.hasPrev} className="btn-ghost disabled:opacity-40">← Previous</button>
-                
-                {Array.from({length: pagination.totalPages}, (_,i) => i+1)
-                  .filter(p => p === 1 || p === pagination.totalPages || Math.abs(p - page) < 2)
-                  .map((p, idx, arr) => (
-                    <button key={p} onClick={() => setPage(p)} className={`px-4 py-2 rounded-2xl text-sm font-medium transition ${page === p ? 'bg-emerald-600 text-white' : 'bg-white border hover:bg-gray-50'}`}>
-                      {p}
-                    </button>
-                  ))}
-                
-                <button onClick={() => setPage(p => Math.min(pagination.totalPages, p+1))} disabled={!pagination.hasNext} className="btn-ghost disabled:opacity-40">Next →</button>
-              </div>
-            )}
-          </>
+            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted sm:hidden">
+              {page} / {pagination.totalPages}
+            </span>
+
+            <button
+              type="button"
+              onClick={() => setPage((value) => Math.min(pagination.totalPages, value + 1))}
+              disabled={!pagination.hasNext}
+              className="inline-flex min-h-11 items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-ink transition-colors hover:text-oxblood disabled:cursor-not-allowed disabled:opacity-30"
+            >
+              Next
+              <FaArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+            </button>
+          </nav>
         )}
-      </div>
+      </section>
     </div>
-  )
+  );
 }

@@ -1,79 +1,87 @@
-import { Link } from 'react-router-dom'
-import { BsFacebook, BsGithub, BsInstagram, BsTwitter } from 'react-icons/bs'
-import { FaBook } from 'react-icons/fa6'
+import { Link } from 'react-router-dom';
+import { FaArrowUpRightFromSquare, FaBookOpen } from 'react-icons/fa6';
 
-const FooterMain = () => {
-  const year = new Date().getFullYear()
+const shopLinks = [
+  { label: 'All books', to: '/shop' },
+  { label: 'Reading room', to: '/reading-room' },
+  { label: 'Sell a book', to: '/sell' }
+];
 
+const houseLinks = [
+  { label: 'About FolioFind', to: '/about' },
+  { label: 'Notes', to: '/blog' },
+  { label: 'My listings', to: '/my-listings' }
+];
+
+export default function FooterMain() {
   return (
-    <footer className="bg-[#0a0f0d] text-gray-300 pt-16 pb-8">
-      <div className="container-custom">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-y-12 gap-x-8 pb-12 border-b border-white/10">
-          {/* Brand */}
-          <div className="col-span-2 md:col-span-1">
-            <Link to="/" className="flex items-center gap-3 mb-4 group">
-              <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
-                <FaBook className="text-white text-xl" />
-              </div>
-              <span className="text-2xl font-semibold text-white tracking-tight">FolioFid</span>
-            </Link>
-            <p className="text-sm text-gray-400 pr-6">Curated books for every reader.<br />Buy, sell &amp; discover with love.</p>
-          </div>
-
-          {/* Links */}
-          <div>
-            <div className="text-white font-semibold mb-4 text-sm tracking-wide">Discover</div>
-            <div className="space-y-2.5 text-sm">
-              <Link to="/shop" className="block hover:text-white transition">Browse Books</Link>
-              <Link to="/blog" className="block hover:text-white transition">Stories &amp; Blog</Link>
-              <Link to="/about" className="block hover:text-white transition">About Us</Link>
-            </div>
-          </div>
-
-          <div>
-            <div className="text-white font-semibold mb-4 text-sm tracking-wide">Community</div>
-            <div className="space-y-2.5 text-sm">
-              <a href="#" className="block hover:text-white transition">Book Clubs</a>
-              <a href="#" className="block hover:text-white transition">Events</a>
-              <a href="#" className="block hover:text-white transition">Authors</a>
-            </div>
-          </div>
-
-          <div>
-            <div className="text-white font-semibold mb-4 text-sm tracking-wide">Support</div>
-            <div className="space-y-2.5 text-sm">
-              <a href="#" className="block hover:text-white transition">Help Center</a>
-              <a href="#" className="block hover:text-white transition">Contact</a>
-              <a href="#" className="block hover:text-white transition">Trust &amp; Safety</a>
-            </div>
-          </div>
-
-          <div>
-            <div className="text-white font-semibold mb-4 text-sm tracking-wide">Legal</div>
-            <div className="space-y-2.5 text-sm">
-              <a href="#" className="block hover:text-white transition">Privacy</a>
-              <a href="#" className="block hover:text-white transition">Terms</a>
-              <a href="#" className="block hover:text-white transition">Licensing</a>
-            </div>
-          </div>
+    <footer className="border-t border-ink bg-ink text-paper">
+      <div className="container-bookshop grid gap-12 py-16 md:grid-cols-[1.6fr_1fr_1fr_1.1fr] lg:py-20">
+        <div>
+          <Link to="/" className="inline-flex items-center gap-3" aria-label="FolioFind home">
+            <span className="flex h-10 w-10 items-center justify-center bg-paper text-ink">
+              <FaBookOpen className="h-4 w-4" aria-hidden="true" />
+            </span>
+            <span className="font-display text-2xl tracking-tight">FolioFind</span>
+          </Link>
+          <p className="mt-6 max-w-sm text-sm leading-relaxed text-paper/60">
+            A second-hand bookshop for books that have already been read. Every listing names the
+            copy, the condition, and the person passing it on.
+          </p>
+          <p className="mt-4 font-mono text-[9px] uppercase leading-relaxed tracking-[0.14em] text-paper/35">
+            Portfolio demo · Seeded listings · Not a live checkout
+          </p>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="flex flex-col md:flex-row items-center justify-between pt-8 text-sm gap-4">
-          <div className="text-gray-400">
-            © {year} FolioFid. Crafted with care for book lovers everywhere.
-          </div>
+        <nav aria-label="Shop links">
+          <h2 className="font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">Browse</h2>
+          <ul className="mt-5 space-y-3">
+            {shopLinks.map((link) => (
+              <li key={link.to}>
+                <Link to={link.to} className="text-sm text-paper/70 transition-colors hover:text-paper">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
-          <div className="flex items-center gap-6 text-gray-400">
-            <a href="#" className="hover:text-emerald-400 transition"><BsTwitter className="text-lg" /></a>
-            <a href="#" className="hover:text-emerald-400 transition"><BsInstagram className="text-lg" /></a>
-            <a href="#" className="hover:text-emerald-400 transition"><BsFacebook className="text-lg" /></a>
-            <a href="#" className="hover:text-emerald-400 transition"><BsGithub className="text-lg" /></a>
-          </div>
+        <nav aria-label="House links">
+          <h2 className="font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">The house</h2>
+          <ul className="mt-5 space-y-3">
+            {houseLinks.map((link) => (
+              <li key={link.to}>
+                <Link to={link.to} className="text-sm text-paper/70 transition-colors hover:text-paper">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <div>
+          <h2 className="font-mono text-[9px] uppercase tracking-[0.16em] text-paper/40">Source</h2>
+          <p className="mt-5 text-sm leading-relaxed text-paper/60">
+            Built with React, Express, and MongoDB. The shelf and listings are backed by the API.
+          </p>
+          <a
+            href="https://github.com/fk219/FolioFind"
+            target="_blank"
+            rel="noreferrer"
+            className="link-line mt-4 inline-flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.14em] text-paper/70 transition-colors hover:text-paper"
+          >
+            GitHub
+            <FaArrowUpRightFromSquare className="h-3 w-3" aria-hidden="true" />
+          </a>
+        </div>
+      </div>
+
+      <div className="border-t border-paper/10">
+        <div className="container-bookshop flex flex-col justify-between gap-3 py-6 font-mono text-[9px] uppercase tracking-[0.14em] text-paper/40 sm:flex-row">
+          <span>© {new Date().getFullYear()} FolioFind</span>
+          <span>Books are seeded demo listings</span>
         </div>
       </div>
     </footer>
-  )
+  );
 }
-
-export default FooterMain

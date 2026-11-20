@@ -1,146 +1,166 @@
-import { useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { FaArrowRight, FaCloudArrowUp } from 'react-icons/fa6'
 import { AuthContext } from '../contexts/AuthProvider'
-import { listBooks } from '../api/books'
+import { getBookStats, listBooks } from '../api/books'
+import BookCover from '../components/BookCover'
 
-const Dashboard = () => {
-  const { user } = useContext(AuthContext)
+export default function Dashboard() {
+  const { user, token } = useContext(AuthContext)
   const [stats, setStats] = useState(null)
   const [recentBooks, setRecentBooks] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const [statsResult, booksResult] = await Promise.all([
+        getBookStats({ token }),
+        listBooks({ limit: 5 })
+      ])
+      setStats(statsResult)
+      setRecentBooks(booksResult.books || [])
+    } catch {
+      setError('The ledger could not be loaded.')
+    } finally {
+      setLoading(false)
+    }
+  }, [token])
 
   useEffect(() => {
-    let cancelled = false
-    ;(async () => {
-      try {
-        const data = await listBooks()
-        if (cancelled) return
-        const books = data?.books || []
-        const totalBooks = books.length
-        const categories = [...new Set(books.map(b => b.category).filter(Boolean))]
-        const categoryCounts = {}
-        for (const cat of categories) {
-          categoryCounts[cat] = books.filter(b => b.category === cat).length
-        }
-        const sorted = [...books].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
-        setStats({ totalBooks, totalCategories: categories.length, categoryCounts })
-        setRecentBooks(sorted.slice(0, 5))
-        setLoading(false)
-      } catch {
-        if (!cancelled) setLoading(false)
-      }
-    })()
-    return () => { cancelled = true }
-  }, [])
+    void load()
+  }, [load])
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-      </div>
-    )
-  }
+  const displayName = user?.fullName?.trim() || user?.email || 'Administrator'
+  const categoryCounts = stats?.categoryCounts || {}
+  const totalBooks = stats?.totalBooks || 0
+  const maxCategory = Math.max(1, ...Object.values(categoryCounts))
 
   return (
-    <div className="px-4 py-8 w-full">
-      <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-      <p className="text-gray-500 mb-8">Welcome back, {user?.fullName || user?.email}</p>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <div className="bg-white rounded-2xl shadow p-6 border border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 font-medium">Total Books</p>
-              <p className="text-4xl font-bold text-gray-800 mt-1">{stats?.totalBooks || 0}</p>
-            </div>
-            <div className="bg-blue-100 p-3 rounded-xl">
-              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-            </div>
+    <div className="px-5 py-8 sm:px-8 xl:px-12">
+      <header className="border-b border-line pb-8">
+        <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+          <div>
+            <p className="eyebrow">Shop ledger / Signed in as {displayName}</p>
+            <h1 className="mt-4 max-w-[13ch] font-display text-[clamp(2.6rem,5vw,4.8rem)] font-light leading-[0.9] tracking-[-0.045em] text-ink">
+              The catalogue, <span className="italic text-oxblood">in hand.</span>
+            </h1>
+            <p className="mt-4 max-w-lg text-sm leading-relaxed text-muted">
+              Catalogue size, category spread, and the copies most recently added to the shelves.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/admin/dashboard/upload" className="btn-primary">
+              <FaCloudArrowUp className="h-3.5 w-3.5" aria-hidden="true" />
+              Upload a book
+            </Link>
+            <Link to="/admin/dashboard/manage" className="btn-outline">
+              Manage books
+            </Link>
           </div>
         </div>
+      </header>
 
-        <div className="bg-white rounded-2xl shadow p-6 border border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 font-medium">Categories</p>
-              <p className="text-4xl font-bold text-gray-800 mt-1">{stats?.totalCategories || 0}</p>
-            </div>
-            <div className="bg-green-100 p-3 rounded-xl">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-            </div>
-          </div>
+      {error ? (
+        <div className="mt-8 border border-line bg-white/60 p-8">
+          <p className="font-display text-2xl text-ink">The ledger is unavailable.</p>
+          <p className="mt-2 text-sm leading-relaxed text-muted">{error}</p>
+          <button type="button" onClick={() => void load()} className="btn-outline mt-5">
+            Try again
+          </button>
         </div>
-
-        <div className="bg-white rounded-2xl shadow p-6 border border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 font-medium">Role</p>
-              <p className="text-4xl font-bold text-gray-800 mt-1 capitalize">{user?.role || "user"}</p>
-            </div>
-            <div className="bg-purple-100 p-3 rounded-xl">
-              <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
-          </div>
+      ) : loading ? (
+        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="h-28 animate-pulse border border-line bg-white/60" />
+          ))}
         </div>
-      </div>
+      ) : (
+        <>
+          <dl className="grid grid-cols-2 border-b border-line sm:grid-cols-3">
+            {[
+              { label: 'Titles', value: totalBooks, note: 'in the catalogue' },
+              { label: 'Categories', value: stats?.totalCategories || 0, note: 'in current use' },
+              { label: 'Role', value: user?.role || 'admin', note: 'access scope' }
+            ].map((stat, index) => (
+              <div
+                key={stat.label}
+                className={`border-b border-line py-5 pr-4 sm:border-b-0 sm:py-6 ${
+                  index < 2 ? 'sm:border-r sm:pr-6' : ''
+                } ${index === 2 ? 'col-span-2 sm:col-span-1' : ''}`}
+              >
+                <dt className="font-mono text-[9px] uppercase tracking-[0.14em] text-muted">{stat.label}</dt>
+                <dd className={`mt-2 font-display leading-none text-ink ${stat.label === 'Role' ? 'text-2xl capitalize' : 'text-4xl tabular-nums'}`}>
+                  {stat.value}
+                </dd>
+                <dd className="mt-2 font-mono text-[9px] uppercase tracking-[0.12em] text-muted">{stat.note}</dd>
+              </div>
+            ))}
+          </dl>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl shadow p-6 border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Books by Category</h2>
-          {stats?.categoryCounts && Object.keys(stats.categoryCounts).length > 0 ? (
-            <div className="space-y-3">
-              {Object.entries(stats.categoryCounts).map(([cat, count]) => (
-                <div key={cat} className="flex items-center justify-between">
-                  <span className="text-gray-700">{cat}</span>
-                  <div className="flex items-center gap-3">
-                    <div className="w-32 bg-gray-100 rounded-full h-2">
-                      <div
-                        className="bg-blue-600 h-2 rounded-full"
-                        style={{ width: `${(count / stats.totalBooks) * 100}%` }}
-                      />
-                    </div>
-                    <span className="text-sm font-semibold text-gray-600 w-6 text-right">{count}</span>
-                  </div>
+          <div className="mt-10 grid gap-8 xl:grid-cols-12">
+            <section className="xl:col-span-6" aria-labelledby="category-title">
+              <div className="flex items-end justify-between border-b border-line pb-3">
+                <h2 id="category-title" className="font-display text-2xl text-ink">By category</h2>
+                <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted">Copies</span>
+              </div>
+              {Object.keys(categoryCounts).length === 0 ? (
+                <p className="border-b border-line py-8 text-sm text-muted">No categories yet.</p>
+              ) : (
+                <div>
+                  {Object.entries(categoryCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([category, count]) => (
+                      <div key={category} className="flex items-center gap-4 border-b border-line py-3.5">
+                        <span className="w-28 shrink-0 text-sm text-ink">{category}</span>
+                        <div className="h-1.5 flex-1 bg-parchment">
+                          <div
+                            className="h-full bg-oxblood"
+                            style={{ width: `${(count / maxCategory) * 100}%` }}
+                          />
+                        </div>
+                        <span className="w-6 text-right font-mono text-xs tabular-nums text-muted">{count}</span>
+                      </div>
+                    ))}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-400">No books uploaded yet.</p>
-          )}
-        </div>
+              )}
+            </section>
 
-        <div className="bg-white rounded-2xl shadow p-6 border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Recent Books</h2>
-          {recentBooks.length > 0 ? (
-            <ul className="divide-y divide-gray-100">
-              {recentBooks.map(book => (
-                <li key={book._id} className="py-3 flex items-center gap-3">
-                  <img
-                    src={book.imageURL}
-                    alt={book.bookTitle}
-                    className="w-10 h-14 object-cover rounded"
-                    onError={(e) => { e.target.style.display = 'none' }}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-800 truncate">{book.bookTitle}</p>
-                    <p className="text-sm text-gray-500 truncate">{book.authorName}</p>
-                  </div>
-                  <span className="text-xs text-gray-400">{book.category}</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-400">No books uploaded yet.</p>
-          )}
-        </div>
-      </div>
+            <section className="xl:col-span-5 xl:col-start-8" aria-labelledby="recent-books-title">
+              <div className="flex items-end justify-between border-b border-line pb-3">
+                <h2 id="recent-books-title" className="font-display text-2xl text-ink">Recent additions</h2>
+                <Link to="/admin/dashboard/manage" className="inline-flex items-center gap-1 font-mono text-[9px] uppercase tracking-[0.12em] text-muted hover:text-ink">
+                  View all
+                  <FaArrowRight className="h-2.5 w-2.5" aria-hidden="true" />
+                </Link>
+              </div>
+              {recentBooks.length === 0 ? (
+                <p className="border-b border-line py-8 text-sm text-muted">No books uploaded yet.</p>
+              ) : (
+                <div>
+                  {recentBooks.map((book) => (
+                    <article key={book._id} className="flex items-center gap-4 border-b border-line py-4">
+                      <div className="h-16 w-11 shrink-0 bg-[#EFE6D2] p-1">
+                        <BookCover title={book.bookTitle} author={book.authorName} src={book.imageURL} compact />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-display text-lg leading-tight text-ink">{book.bookTitle}</p>
+                        <p className="mt-0.5 truncate text-xs text-muted">{book.authorName}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-mono text-[9px] uppercase tracking-[0.1em] text-muted">{book.category}</p>
+                        <p className="mt-1 font-mono text-xs tabular-nums text-ink">${Number(book.price || 0).toFixed(2)}</p>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </section>
+          </div>
+        </>
+      )}
     </div>
   )
 }
-
-export default Dashboard

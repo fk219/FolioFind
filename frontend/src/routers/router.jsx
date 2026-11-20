@@ -9,6 +9,7 @@ import { getBook } from "../api/books";
 const Shop = lazy(() => import("../pages/Shop/Shop"));
 const SingleBook = lazy(() => import("../pages/shared/SingleBook"));
 const SellBook = lazy(() => import("../pages/SellBook"));
+const ReadingRoom = lazy(() => import("../pages/ReadingRoom"));
 const MyListings = lazy(() => import("../pages/MyListings"));
 const Login = lazy(() => import("../pages/Login"));
 const Signup = lazy(() => import("../pages/Signup"));
@@ -36,6 +37,7 @@ const router = createBrowserRouter([
       { path: "/book/:id", element: <Lazy><SingleBook /></Lazy>, loader: ({ params }) => getBook(params.id) },
       { path: "/about", element: <Lazy><About /></Lazy> },
       { path: "/blog", element: <Lazy><Blog /></Lazy> },
+      { path: "/reading-room", element: <Lazy><ReadingRoom /></Lazy> },
       { path: "/sell", element: <Lazy><SellBook /></Lazy> },
       { path: "/my-listings", element: <Lazy><MyListings /></Lazy> }
     ]

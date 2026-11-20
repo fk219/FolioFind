@@ -1,86 +1,159 @@
 import { useContext, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { FaEye, FaEyeSlash } from 'react-icons/fa6'
 import { AuthContext } from '../contexts/AuthProvider'
-import { FaBook } from 'react-icons/fa6'
+import AuthFrame from '../components/AuthFrame'
 
-const Signup = () => {
-    const [errorMessage, setErrorMessage] = useState('')
-    const [loading, setLoading] = useState(false)
+export default function Signup() {
+  const [form, setForm] = useState({ fullName: '', email: '', password: '', confirm: '' })
+  const [errorMessage, setErrorMessage] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const { createUser } = useContext(AuthContext)
+  const location = useLocation()
+  const navigate = useNavigate()
 
-    const { createUser } = useContext(AuthContext)
-    const location = useLocation()
-    const navigate = useNavigate()
+  const from = location.state?.from?.pathname || '/reading-room'
 
-    const from = location.state?.from?.pathname || '/'
+  const handleChange = (event) => {
+    setForm((previous) => ({ ...previous, [event.target.name]: event.target.value }))
+  }
 
-    const handleSignup = async (event) => {
-        event.preventDefault()
-        setLoading(true)
-        setErrorMessage('')
-        const form = event.target
-        const email = form.email.value
-        const password = form.password.value
-        const fullName = form.fullName.value
-        try {
-            await createUser(email, password, fullName)
-            navigate(from, { replace: true })
-        } catch (error) {
-            setErrorMessage(error.message || 'Signup failed. Please try again.')
-        } finally {
-            setLoading(false)
-        }
+  const handleSignup = async (event) => {
+    event.preventDefault()
+    setErrorMessage('')
+
+    if (form.password !== form.confirm) {
+      setErrorMessage('The passwords do not match.')
+      return
+    }
+    if (form.password.length < 8) {
+      setErrorMessage('Use at least 8 characters for the password.')
+      return
     }
 
-    return (
-        <div className="min-h-[100dvh] bg-[#f8f7f4] flex items-center justify-center py-12 px-4">
-            <div className="w-full max-w-[460px]">
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center gap-3 mb-4">
-                        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center">
-                            <FaBook className="text-white text-2xl" />
-                        </div>
-                        <span className="font-semibold text-3xl tracking-[-1px]">FolioFid</span>
-                    </div>
-                    <h1 className="text-4xl tracking-[-1.5px] font-semibold">Join the club</h1>
-                    <p className="mt-2 text-gray-600">Create your account and start discovering beautiful books</p>
-                </div>
+    setLoading(true)
+    try {
+      await createUser(form.email.trim(), form.password, form.fullName.trim())
+      navigate(from, { replace: true })
+    } catch (error) {
+      setErrorMessage(error.message || 'Signup failed. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
-                <div className="card p-8 md:p-10">
-                    <form onSubmit={handleSignup} className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-medium mb-1.5 text-gray-700">Full name</label>
-                            <input id="fullName" name="fullName" type="text" className="input-field" placeholder="Alex Rivera" />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium mb-1.5 text-gray-700">Email address</label>
-                            <input id="email" name="email" type="email" className="input-field" placeholder="you@reading.com" required />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium mb-1.5 text-gray-700">Password</label>
-                            <input id="password" name="password" type="password" className="input-field" placeholder="At least 8 characters" required />
-                        </div>
-
-                        {errorMessage && (
-                            <div className="text-red-600 text-sm bg-red-50 border border-red-100 px-4 py-2.5 rounded-2xl">
-                                {errorMessage}
-                            </div>
-                        )}
-
-                        <button type="submit" disabled={loading} className="btn-primary w-full text-base py-4">
-                            {loading ? 'Creating your account...' : 'Create my account'}
-                        </button>
-
-                        <p className="text-center text-sm text-gray-600 pt-2">
-                            Already a member?{' '}
-                            <Link to="/login" className="font-semibold text-emerald-700 hover:underline">Sign in instead</Link>
-                        </p>
-                    </form>
-                </div>
-            </div>
+  return (
+    <AuthFrame
+      eyebrow="New reader"
+      title="Open your reading room."
+      description="Create an account to keep a shelf, list books, and return to the copies you were considering."
+    >
+      <form onSubmit={handleSignup} className="mt-8 max-w-md space-y-5">
+        <div>
+          <label htmlFor="fullName" className="field-label">
+            Full name
+          </label>
+          <input
+            id="fullName"
+            name="fullName"
+            type="text"
+            autoComplete="name"
+            value={form.fullName}
+            onChange={handleChange}
+            className="input-field mt-2"
+            placeholder="Your name"
+            required
+            maxLength={100}
+          />
         </div>
-    )
-}
 
-export default Signup
+        <div>
+          <label htmlFor="email" className="field-label">
+            Email address
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            value={form.email}
+            onChange={handleChange}
+            className="input-field mt-2"
+            placeholder="you@example.com"
+            required
+          />
+        </div>
+
+        <div>
+          <label htmlFor="password" className="field-label">
+            Password
+          </label>
+          <div className="relative">
+            <input
+              id="password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="new-password"
+              value={form.password}
+              onChange={handleChange}
+              className="input-field mt-2 pr-12"
+              placeholder="At least 8 characters"
+              required
+              minLength={8}
+              maxLength={128}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((value) => !value)}
+              className="absolute right-0 top-2 flex h-12 w-12 items-center justify-center text-muted transition-colors hover:text-ink"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <FaEyeSlash className="h-4 w-4" aria-hidden="true" /> : <FaEye className="h-4 w-4" aria-hidden="true" />}
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="confirm" className="field-label">
+            Confirm password
+          </label>
+          <input
+            id="confirm"
+            name="confirm"
+            type="password"
+            autoComplete="new-password"
+            value={form.confirm}
+            onChange={handleChange}
+            className="input-field mt-2"
+            placeholder="Repeat the password"
+            required
+            minLength={8}
+            maxLength={128}
+          />
+        </div>
+
+        {errorMessage && (
+          <p className="border border-oxblood/30 bg-oxblood/5 px-4 py-3 text-sm text-oxblood" role="alert">
+            {errorMessage}
+          </p>
+        )}
+
+        <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-50">
+          {loading ? 'Creating the account…' : 'Create account'}
+        </button>
+
+        <p className="text-sm text-muted">
+          Already have an account?{' '}
+          <Link to="/login" state={location.state} className="link-line font-medium text-oxblood">
+            Sign in
+          </Link>
+        </p>
+      </form>
+
+      <p className="mt-8 max-w-md border-t border-line pt-4 font-mono text-[9px] uppercase leading-relaxed tracking-[0.12em] text-muted">
+        Demo accounts only · Do not enter personal or payment information
+      </p>
+    </AuthFrame>
+  )
+}

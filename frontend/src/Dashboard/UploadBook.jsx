@@ -1,209 +1,53 @@
 import { useContext, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { AuthContext } from '../contexts/AuthProvider'
+import { createBook } from '../api/books'
+import BookForm from './BookForm'
 
-import { Button, Label, Select, TextInput, Textarea } from 'flowbite-react';
-import { AuthContext } from '../contexts/AuthProvider';
-import { createBook } from '../api/books';
+export default function UploadBook() {
+  const { token } = useContext(AuthContext)
+  const navigate = useNavigate()
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
 
-const UploadBook = () => {
-  const { token } = useContext(AuthContext);
-  const bookCategories = [
-    "Fiction",
-    "Non-fiction",
-    "Mystery",
-    "Programming",
-    "Science fiction",
-    "Fantasy",
-    "Horror",
-    "Biography",
-    "Autobiography",
-    "History",
-    "Self-help",
-    "Business",
-    "Memoir",
-    "Poetry",
-    "Children's books",
-    "Travel",
-    "Religion and spirituality",
-    "Science",
-    "Art and design",
-  ];
-
-
-  const [selectedBookCategory, setSelectedBookCategory] = useState(
-    bookCategories[0]
-  );
-
-  const handleChangeSelectedValue = (event) => {
-    setSelectedBookCategory(event.target.value);
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const form = event.target;
-
-    const bookTitle = form.bookTitle.value;
-    const authorName = form.authorName.value;
-    const imageURL = form.imageURL.value;
-    const category = form.categoryName.value;
-    const bookDescription = form.bookDescription.value;
-    const bookPDFURL = form.bookPDFURL.value;
-
-    const bookObj = {
-      bookTitle,
-      authorName,
-      imageURL,
-      category,
-      bookDescription,
-      bookPDFURL,
-    };
+  const handleSubmit = async (payload) => {
+    setBusy(true)
+    setError('')
     try {
-      await createBook({ token, book: bookObj });
-      alert("Book uploaded successfully!");
-      form.reset();
-    } catch (e) {
-      alert("Upload failed.");
+      await createBook({ token, book: payload })
+      navigate('/admin/dashboard/manage')
+    } catch (err) {
+      setError(err.message || 'The book could not be uploaded.')
+    } finally {
+      setBusy(false)
     }
-  };
-
+  }
 
   return (
-    <div className='px-4 my-12'>
-      <h2 className='mb-8 text-3xl font-bold'>Upload A Book!</h2>
-      <form className="flex lg:w-[1180px] flex-col flex-wrap gap-4" onSubmit={handleSubmit}>
+    <div className="px-5 py-8 sm:px-8 xl:px-12">
+      <header className="border-b border-line pb-8">
+        <p className="eyebrow">Shop ledger / New copy</p>
+        <h1 className="mt-4 font-display text-[clamp(2.4rem,4.6vw,4.2rem)] font-light leading-[0.92] tracking-[-0.04em] text-ink">
+          Upload a <span className="italic text-oxblood">book.</span>
+        </h1>
+        <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted">
+          Add a copy to the public catalogue. Include the edition, condition, and a specific note for
+          the reader who takes it home.
+        </p>
+        <Link to="/admin/dashboard/manage" className="link-line mt-4 inline-block font-mono text-[9px] uppercase tracking-[0.12em] text-muted">
+          Back to inventory
+        </Link>
+      </header>
 
-        {/* first row */}
-        <div className='flex gap-8'>
-
-          {/* book name */}
-          <div className='lg:w-1/2'>
-            <div className="mb-2 block">
-              <Label
-                htmlFor="bookTitle"
-                value="Book Title"
-              />
-            </div>
-            <TextInput
-              id="bookTitle"
-              placeholder="Book Name"
-              required
-              type="text"
-              name='bookTitle'
-              className='w-full'
-            />
-          </div>
-
-          {/* author name */}
-          <div className='lg:w-1/2'>
-            <div className="mb-2 block">
-              <Label
-                htmlFor="authorName"
-                value="Author Name"
-              />
-            </div>
-            <TextInput
-              id="authorName"
-              placeholder="Author Name"
-              required
-              type="text"
-              name='authorName'
-              className='w-full'
-            />
-          </div>
-
-        </div>
-
-        {/* 2nd Row */}
-        <div className='flex gap-8'>
-          {/* book url */}
-          <div className='lg:w-1/2'>
-            <div className="mb-2 block">
-              <Label
-                htmlFor="imageURL"
-                value="Book Image URL"
-              />
-            </div>
-            <TextInput
-              id="imageURL"
-              placeholder="Image URL"
-              required
-              type="text"
-              name='imageURL'
-              className='w-full'
-            />
-          </div>
-
-          {/* book category */}
-          <div className='lg:w-1/2'>
-            <div className="mb-2 block">
-              <Label
-                htmlFor="inputState"
-                value="Book Category"
-              />
-            </div>
-            <Select
-              id="inputState"
-              name="categoryName"
-              className="w-full rounded"
-              value={selectedBookCategory}
-              onChange={handleChangeSelectedValue}
-            >
-              {bookCategories.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </Select>
-          </div>
-
-        </div>
-
-        {/* full width div for book description */}
-        <div>
-          <div className="mb-2 block">
-            <Label
-              htmlFor="bookDescription"
-              value="Book Description"
-            />
-          </div>
-          <Textarea
-            id="bookDescription"
-            placeholder="Book Description"
-            required
-            type="text"
-            name='bookDescription'
-            className='w-full'
-            rows={4}
-          />
-        </div>
-
-
-        {/* book pdf url */}
-        <div>
-          <div className="mb-2 block">
-            <Label
-              htmlFor="bookPDFURL"
-              value="Book PDF Link"
-            />
-          </div>
-          <TextInput
-            id="bookPDFURL"
-            placeholder="Paste Book PDF URL here"
-            required
-            type="text"
-            name='bookPDFURL'
-            className='w-full'
-          />
-        </div>
-
-
-        {/* Submit btn */}
-        <Button type="submit" className='mt-5'>
-          Upload book
-        </Button>
-
-      </form>
+      <div className="mt-8 max-w-4xl">
+        <BookForm
+          submitLabel="Publish book"
+          busyLabel="Publishing…"
+          busy={busy}
+          error={error}
+          onSubmit={handleSubmit}
+        />
+      </div>
     </div>
   )
 }
-
-export default UploadBook
