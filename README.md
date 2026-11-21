@@ -6,9 +6,12 @@ The design direction is documented in [`DESIGN.md`](DESIGN.md).
 
 ## Live demo
 
-**https://foliofind.onrender.com**
+| Surface | URL |
+|---|---|
+| Frontend (Vercel) | https://foliofind.vercel.app |
+| Full-stack app / API (Render) | https://foliofind.onrender.com |
 
-The single Render service serves the React shop and the Express API from the same origin, backed by MongoDB Atlas.
+The Vercel frontend proxies `/api` to the Render service, which reads and writes MongoDB Atlas. The Render service still serves the complete app as a same-origin fallback.
 
 **Demo administrator:** `admin@example.com` / `admin123`
 
