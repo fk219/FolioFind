@@ -4,6 +4,16 @@ A full-stack marketplace for second-hand books. Every listing is a specific copy
 
 The design direction is documented in [`DESIGN.md`](DESIGN.md).
 
+## Live demo
+
+**https://foliofind.onrender.com**
+
+The single Render service serves the React shop and the Express API from the same origin, backed by MongoDB Atlas.
+
+**Demo administrator:** `admin@example.com` / `admin123`
+
+Readers can create their own account from `/create-user`.
+
 ## The idea
 
 Most book marketplaces flatten a used book into a title, a cover, and a price. FolioFind treats the copy as the product:
