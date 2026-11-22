@@ -158,8 +158,12 @@ async function seedBooksIfNeeded(collections) {
     const count = await collections.books.countDocuments();
     if (count > 0) return;
 
+    const admin = await collections.users.findOne({ role: "admin" });
     const docs = REAL_BOOKS.map(book => ({
       ...book,
+      sellerId: admin ? String(admin._id) : book.sellerId,
+      sellerEmail: admin?.email || book.sellerEmail,
+      sellerName: admin ? "The FolioFind desk" : book.sellerName,
       createdAt: new Date(),
       updatedAt: new Date()
     }));
