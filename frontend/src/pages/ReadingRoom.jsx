@@ -66,7 +66,9 @@ function Shelf({ shelf, books }) {
         <div className="shelf-plank" />
       </div>
 
-      <p className="px-5 py-4 text-xs leading-relaxed text-paper/45">{shelf.note}</p>
+      {books.length > 0 && (
+        <p className="px-5 py-4 text-xs leading-relaxed text-paper/45">{shelf.note}</p>
+      )}
     </section>
   )
 }

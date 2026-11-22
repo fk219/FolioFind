@@ -4,6 +4,7 @@ import { FaArrowLeft, FaArrowRight, FaEnvelope, FaPlus, FaTrashCan } from 'react
 import { AuthContext } from '../../contexts/AuthProvider'
 import { ShelfContext } from '../../contexts/ShelfProvider'
 import BookCover from '../../components/BookCover'
+import { sendInquiry } from '../../api/books'
 
 const STATUS_OPTIONS = [
   { value: 'want-to-read', label: 'Want to read' },
@@ -20,7 +21,7 @@ const conditionTone = {
 
 const SingleBook = () => {
   const data = useLoaderData()
-  const { user } = useContext(AuthContext)
+  const { user, token } = useContext(AuthContext)
   const { getItem, save, remove, loading: shelfLoading } = useContext(ShelfContext)
   const navigate = useNavigate()
   const location = useLocation()
@@ -32,6 +33,11 @@ const SingleBook = () => {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [confirmRemove, setConfirmRemove] = useState(false)
+  const [inquiryOpen, setInquiryOpen] = useState(false)
+  const [inquiryText, setInquiryText] = useState('')
+  const [inquirySending, setInquirySending] = useState(false)
+  const [inquiryMessage, setInquiryMessage] = useState('')
+  const [inquiryError, setInquiryError] = useState('')
 
   useEffect(() => {
     setStatus(shelfItem?.shelf?.status || '')
@@ -70,6 +76,27 @@ const SingleBook = () => {
       setError('Could not save the note.')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const submitInquiry = async (event) => {
+    event.preventDefault()
+    if (!token) {
+      navigate('/login', { state: { from: location } })
+      return
+    }
+    setInquirySending(true)
+    setInquiryError('')
+    setInquiryMessage('')
+    try {
+      await sendInquiry({ token, id: data._id, message: inquiryText })
+      setInquiryText('')
+      setInquiryOpen(false)
+      setInquiryMessage('Enquiry sent. The seller will see it in their FolioFind inbox.')
+    } catch (err) {
+      setInquiryError(err.message || 'Could not send the enquiry.')
+    } finally {
+      setInquirySending(false)
     }
   }
 
@@ -174,14 +201,27 @@ const SingleBook = () => {
                   <p className="field-label">Seller</p>
                   <p className="mt-1 text-sm text-ink">{data.sellerName || 'FolioFind desk'}</p>
                 </div>
-                {data.status === 'available' && data.sellerEmail && user?.email !== data.sellerEmail && (
-                  <a
-                    href={`mailto:${data.sellerEmail}?subject=${encodeURIComponent(`Interested in ${data.bookTitle}`)}`}
-                    className="btn-outline min-h-10 px-3 py-2"
-                  >
-                    <FaEnvelope className="h-3.5 w-3.5" aria-hidden="true" />
-                    Email the seller
-                  </a>
+                {data.status === 'available' && user?.email !== data.sellerEmail && (
+                  user ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setInquiryOpen((open) => !open)
+                        setInquiryMessage('')
+                        setInquiryError('')
+                      }}
+                      className="btn-outline min-h-10 px-3 py-2"
+                      aria-expanded={inquiryOpen}
+                    >
+                      <FaEnvelope className="h-3.5 w-3.5" aria-hidden="true" />
+                      Ask about this copy
+                    </button>
+                  ) : (
+                    <Link to="/login" state={{ from: location }} className="btn-outline min-h-10 px-3 py-2">
+                      <FaEnvelope className="h-3.5 w-3.5" aria-hidden="true" />
+                      Sign in to ask
+                    </Link>
+                  )
                 )}
                 {user?.email === data.sellerEmail && (
                   <Link to="/my-listings" className="btn-outline min-h-10 px-3 py-2">
@@ -189,8 +229,56 @@ const SingleBook = () => {
                   </Link>
                 )}
               </div>
+
+              {inquiryOpen && user && (
+                <form onSubmit={submitInquiry} className="border-b border-line px-5 py-4">
+                  <label htmlFor="copy-inquiry" className="field-label">
+                    Message the seller
+                  </label>
+                  <textarea
+                    id="copy-inquiry"
+                    rows={3}
+                    minLength={10}
+                    maxLength={500}
+                    required
+                    value={inquiryText}
+                    onChange={(event) => setInquiryText(event.target.value)}
+                    className="input-field mt-2 resize-y text-sm"
+                    placeholder="Ask about the edition, condition, or whether it is still available."
+                  />
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+                    <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted tabular-nums">
+                      {inquiryText.length} / 500
+                    </span>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setInquiryOpen(false)}
+                        className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted underline underline-offset-4"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={inquirySending || inquiryText.trim().length < 10}
+                        className="btn-primary min-h-9 px-4 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {inquirySending ? 'Sending…' : 'Send enquiry'}
+                      </button>
+                    </div>
+                  </div>
+                  {inquiryError && <p className="mt-2 text-sm text-oxblood" role="alert">{inquiryError}</p>}
+                </form>
+              )}
+
+              {inquiryMessage && (
+                <p className="border-b border-line px-5 py-3 text-sm text-olive" role="status">
+                  {inquiryMessage}
+                </p>
+              )}
+
               <p className="px-5 py-3 font-mono text-[9px] uppercase leading-relaxed tracking-[0.12em] text-muted">
-                Seeded demo marketplace · Seller contact is illustrative
+                Enquiries stay inside FolioFind · no personal email is exposed
               </p>
             </div>
 

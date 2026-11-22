@@ -35,7 +35,8 @@ function getCollections(c) {
   const db = c.db("BookInventory");
   return {
     books: db.collection("Books"),
-    users: db.collection("users")
+    users: db.collection("users"),
+    inquiries: db.collection("inquiries")
   };
 }
 

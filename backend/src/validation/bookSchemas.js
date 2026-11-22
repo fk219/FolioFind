@@ -24,4 +24,8 @@ const statusSchema = z.object({
   status: z.enum(["available", "sold", "pending"])
 });
 
-module.exports = { bookSchema, bookPatchSchema, statusSchema };
+const inquirySchema = z.object({
+  message: z.string().trim().min(10).max(500)
+});
+
+module.exports = { bookSchema, bookPatchSchema, statusSchema, inquirySchema };

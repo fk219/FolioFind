@@ -139,4 +139,57 @@ async function updateStatus(collections, id, status, user) {
   return { success: true };
 }
 
-module.exports = { list, listByUser, getById, create, update, remove, updateStatus };
+async function createInquiry(collections, id, message, user) {
+  const _id = assertObjectId(id);
+  const book = await collections.books.findOne({ _id });
+  if (!book) {
+    const err = new Error("Not found");
+    err.statusCode = 404;
+    throw err;
+  }
+  if (book.sellerId === String(user.id)) {
+    const err = new Error("This is your own listing");
+    err.statusCode = 400;
+    throw err;
+  }
+  if (book.status !== "available") {
+    const err = new Error("This copy is no longer available");
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const inquiry = {
+    bookId: _id,
+    bookTitle: book.bookTitle,
+    sellerId: book.sellerId,
+    sellerEmail: book.sellerEmail,
+    buyerId: String(user.id),
+    buyerName: user.fullName || user.email,
+    buyerEmail: user.email,
+    message: String(message).trim(),
+    createdAt: new Date()
+  };
+  const result = await collections.inquiries.insertOne(inquiry);
+  return { id: result.insertedId };
+}
+
+async function listInquiries(collections, userId) {
+  const inquiries = await collections.inquiries
+    .find({ sellerId: String(userId) })
+    .sort({ createdAt: -1 })
+    .limit(100)
+    .toArray();
+  return { inquiries };
+}
+
+module.exports = {
+  list,
+  listByUser,
+  getById,
+  create,
+  update,
+  remove,
+  updateStatus,
+  createInquiry,
+  listInquiries
+};

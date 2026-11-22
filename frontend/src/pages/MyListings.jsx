@@ -2,7 +2,7 @@ import { useCallback, useContext, useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { FaArrowRight, FaPlus, FaTrashCan } from 'react-icons/fa6'
 import { AuthContext } from '../contexts/AuthProvider'
-import { listMyBooks, updateBookStatus, deleteBook } from '../api/books'
+import { listMyBooks, updateBookStatus, deleteBook, listInquiries } from '../api/books'
 import BookCover from '../components/BookCover'
 
 const STATUS_TONE = {
@@ -15,6 +15,7 @@ export default function MyListings() {
   const { token, user } = useContext(AuthContext)
   const location = useLocation()
   const [books, setBooks] = useState([])
+  const [inquiries, setInquiries] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [actingId, setActingId] = useState('')
@@ -35,8 +36,14 @@ export default function MyListings() {
   }, [token])
 
   useEffect(() => {
-    if (token) fetchBooks()
-    else setLoading(false)
+    if (!token) {
+      setLoading(false)
+      return
+    }
+    fetchBooks()
+    listInquiries({ token })
+      .then(setInquiries)
+      .catch(() => setInquiries([]))
   }, [token, fetchBooks])
 
   async function handleStatus(id, status) {
@@ -121,6 +128,47 @@ export default function MyListings() {
             {message}
           </p>
         )}
+
+        <div className="mt-8 border border-line bg-white/60">
+          <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-line px-5 py-4">
+            <div>
+              <p className="field-label">Buyer enquiries</p>
+              <p className="mt-1 text-sm text-muted">Messages sent from a copy’s page.</p>
+            </div>
+            <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted">
+              {inquiries.length} {inquiries.length === 1 ? 'message' : 'messages'}
+            </span>
+          </div>
+          {inquiries.length === 0 ? (
+            <p className="px-5 py-5 text-sm leading-relaxed text-muted">
+              No enquiries yet. When a reader asks about one of your copies, the message lands here.
+            </p>
+          ) : (
+            <div className="divide-y divide-line">
+              {inquiries.map((inquiry) => (
+                <article key={inquiry._id} className="px-5 py-4">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="font-display text-lg text-ink">{inquiry.bookTitle}</p>
+                    <p className="font-mono text-[9px] uppercase tracking-[0.1em] text-muted">
+                      {new Date(inquiry.createdAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </p>
+                  </div>
+                  <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.1em] text-muted">
+                    From {inquiry.buyerName}
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-ink/75">{inquiry.message}</p>
+                  <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.1em] text-muted">
+                    Reply at {inquiry.buyerEmail}
+                  </p>
+                </article>
+              ))}
+            </div>
+          )}
+        </div>
 
         {loading ? (
           <div className="mt-8 space-y-3">

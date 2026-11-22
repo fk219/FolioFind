@@ -84,7 +84,7 @@ export default function Navbar() {
               </Link>
               {user.role === "admin" && (
                 <Link to="/admin/dashboard" className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted hover:text-ink">
-                  Admin
+                  Dashboard
                 </Link>
               )}
               <span className="h-3 w-px bg-line" aria-hidden="true" />
@@ -182,6 +182,11 @@ export default function Navbar() {
                   <Link to="/my-listings" className="btn-outline">
                     My listings
                   </Link>
+                  {user.role === "admin" && (
+                    <Link to="/admin/dashboard" className="btn-outline">
+                      Admin dashboard
+                    </Link>
+                  )}
                   <Link to="/sell" className="btn-primary">
                     Sell a book
                   </Link>

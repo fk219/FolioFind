@@ -1,7 +1,7 @@
 const express = require("express");
 const { requireAuth } = require("../middleware/auth");
 const { requireAdmin } = require("../middleware/requireAdmin");
-const { bookSchema, bookPatchSchema, statusSchema } = require("../validation/bookSchemas");
+const { bookSchema, bookPatchSchema, statusSchema, inquirySchema } = require("../validation/bookSchemas");
 const booksController = require("../controllers/booksController");
 
 module.exports = function booksRoutes(collections) {
@@ -63,6 +63,15 @@ module.exports = function booksRoutes(collections) {
     }
   });
 
+  router.get("/inquiries/mine", requireAuth, async (req, res, next) => {
+    try {
+      const result = await booksController.listInquiries(collections, req.user.id);
+      res.json(result);
+    } catch (e) {
+      next(e);
+    }
+  });
+
   router.get("/:id", async (req, res, next) => {
     try {
       const book = await booksController.getById(collections, req.params.id);
@@ -99,6 +108,17 @@ module.exports = function booksRoutes(collections) {
       const { status } = statusSchema.parse(req.body);
       await booksController.updateStatus(collections, req.params.id, status, req.user);
       res.json({ message: "Status updated" });
+    } catch (e) {
+      if (e?.name === "ZodError") e.statusCode = 400;
+      next(e);
+    }
+  });
+
+  router.post("/:id/inquiry", requireAuth, async (req, res, next) => {
+    try {
+      const { message } = inquirySchema.parse(req.body);
+      const result = await booksController.createInquiry(collections, req.params.id, message, req.user);
+      res.status(201).json({ message: "Enquiry sent", data: result });
     } catch (e) {
       if (e?.name === "ZodError") e.statusCode = 400;
       next(e);

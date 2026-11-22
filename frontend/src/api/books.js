@@ -42,3 +42,12 @@ export function updateBookStatus({ token, id, status }) {
 export function deleteBook({ token, id }) {
   return http(`/api/books/${id}`, { method: "DELETE", token });
 }
+
+export function sendInquiry({ token, id, message }) {
+  return http(`/api/books/${id}/inquiry`, { method: "POST", token, body: { message } });
+}
+
+export async function listInquiries({ token }) {
+  const res = await http("/api/books/inquiries/mine", { token });
+  return res.inquiries;
+}
