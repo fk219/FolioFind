@@ -20,6 +20,15 @@ FolioFind is a second-hand book marketplace where every listing is a specific co
 
 The reading room is private to the signed-in account.
 
+### Demo reader
+
+Use the **Enter** button beside **Demo reader** on the sign-in page, or:
+
+- **Email:** `reader@foliofind.example`
+- **Password:** `FolioFind123!`
+
+The account can browse, use the reading room, and send an enquiry to a seller. No signup is required.
+
 ## Ask a seller
 
 On any available copy, press **Ask about this copy**. The message is stored in FolioFind's enquiry collection and appears in the seller's **My listings** inbox. Personal email addresses are not exposed.
@@ -36,7 +45,7 @@ A sold copy leaves the public shelves but stays in the seller's record.
 
 ## Admin
 
-Sign in with:
+Use the **Enter** button beside **Demo admin** on the sign-in page, or:
 
 - **Email:** `admin@example.com`
 - **Password:** `admin123`

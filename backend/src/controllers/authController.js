@@ -23,6 +23,28 @@ async function ensureUserIndexes(collections) {
   await collections.users.createIndex({ email: 1 }, { unique: true });
 }
 
+async function seedDemoReaderIfNeeded(collections) {
+  await ensureUserIndexes(collections);
+
+  const email = process.env.DEMO_READER_EMAIL || "reader@foliofind.example";
+  const password = process.env.DEMO_READER_PASSWORD || "FolioFind123!";
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  await collections.users.updateOne(
+    { email },
+    {
+      $set: {
+        email,
+        passwordHash,
+        fullName: "Demo Reader",
+        role: "user"
+      },
+      $setOnInsert: { createdAt: new Date() }
+    },
+    { upsert: true }
+  );
+}
+
 async function seedAdminIfNeeded(collections) {
   await ensureUserIndexes(collections);
 
@@ -83,4 +105,4 @@ async function login(collections, payload) {
   };
 }
 
-module.exports = { seedAdminIfNeeded, register, login };
+module.exports = { seedAdminIfNeeded, seedDemoReaderIfNeeded, register, login };

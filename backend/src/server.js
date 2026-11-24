@@ -1,13 +1,14 @@
 const createApp = require("./app");
 const { connectDb, getCollections } = require("./db/client");
 const { port } = require("./config");
-const { seedAdminIfNeeded } = require("./controllers/authController");
+const { seedAdminIfNeeded, seedDemoReaderIfNeeded } = require("./controllers/authController");
 const { seedBooksIfNeeded } = require("./db/seeder");
 
 async function start() {
   const client = await connectDb();
   const collections = getCollections(client);
   await seedAdminIfNeeded(collections);
+  await seedDemoReaderIfNeeded(collections);
   await seedBooksIfNeeded(collections);
 
   const app = createApp({ collections });
