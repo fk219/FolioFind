@@ -464,3 +464,33 @@ textarea {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------------------------------------------------------------- */
+/* Theme switch: dark reading room                                  */
+/* ---------------------------------------------------------------- */
+html[data-theme="dark"] {
+  --paper: #121814;
+  --parchment: #1a221d;
+  --ink: #ece7da;
+  --oxblood: #9cc7b3;
+  --olive: #b9c29f;
+  --brass: #d8ad64;
+  --muted: rgba(236, 231, 218, 0.66);
+  --line: rgba(236, 231, 218, 0.18);
+  color-scheme: dark;
+}
+
+html[data-theme="dark"] body {
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(circle at 10% 8%, rgba(156, 199, 179, 0.1), transparent 24rem),
+    repeating-linear-gradient(0deg, transparent 0 39px, rgba(236, 231, 218, 0.035) 39px 40px);
+}
+
+html[data-theme="dark"] .bg-white {
+  background-color: #1a221d;
+}
+
+html[data-theme="dark"] ::selection {
+  background: rgba(216, 173, 100, 0.28);
+}

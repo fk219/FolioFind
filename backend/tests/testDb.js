@@ -1,8 +1,8 @@
 const { MongoClient } = require("mongodb");
-const { mongoUri } = require("../src/config");
 
 async function createTestDb() {
-  const uri = mongoUri || process.env.MONGO_URI || "mongodb://localhost:27017/folioFind-test";
+  // Tests must use a disposable MongoDB, never the production database from .env.
+  const uri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/folioFind-test";
   const client = new MongoClient(uri);
   await client.connect();
 
